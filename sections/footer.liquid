@@ -96,6 +96,38 @@
     .footer-content--isolated-grid-item-desktop > :last-child {
       grid-column: 1 / -1;
     }
+
+    /* Give the newsletter column extra room when it sits at either edge */
+    .footer-content[style*='--grid-columns: 3']:has(> :last-child .email-signup-block) {
+      grid-template-columns: 1fr 1fr 1.6fr;
+    }
+
+    .footer-content[style*='--grid-columns: 3']:has(> :first-child .email-signup-block) {
+      grid-template-columns: 1.6fr 1fr 1fr;
+    }
+
+    .footer-content[style*='--grid-columns: 4']:has(> :last-child .email-signup-block) {
+      grid-template-columns: 1fr 1fr 1fr 1.6fr;
+    }
+
+    .footer-content[style*='--grid-columns: 4']:has(> :first-child .email-signup-block) {
+      grid-template-columns: 1.6fr 1fr 1fr 1fr;
+    }
+  }
+
+  @media screen and (max-width: 749px) {
+    /* Accordion menus stack flush; keep the gap for the newsletter block only */
+    .footer-content {
+      gap: 0;
+    }
+
+    .footer-content > :not(.menu) {
+      margin-block-start: var(--footer-gap);
+    }
+
+    .footer-content > .menu + .menu {
+      margin-block-start: 0;
+    }
   }
 {% endstylesheet %}
 

@@ -1,0 +1,803 @@
+{% comment %}
+  Wishluck FAQ — heading + accordion of questions in rounded cards (or divider
+  rows), with optional group labels and a "Still have questions?" contact box.
+  Reuses the theme's accordion-custom element for open/close animation.
+
+  Layouts:
+  - stacked: heading above, questions full width (default)
+  - split:   heading + contact box on the left (sticky), questions on the right
+  Both collapse to a single column on mobile.
+{% endcomment %}
+
+{% liquid
+  if section.settings.background_color != blank
+    render 'contrast-override', background_color: section.settings.background_color, section_id: section.id
+  endif
+
+  assign has_cta = false
+  if section.settings.cta_heading != blank or section.settings.cta_button_label != blank
+    assign has_cta = true
+  endif
+
+  assign question_blocks = section.blocks | where: 'type', 'question'
+%}
+
+{% capture cta_html %}
+  {% if has_cta %}
+    <div class="faq__cta">
+      <div class="faq__cta-text">
+        {% if section.settings.cta_heading != blank %}
+          <p class="faq__cta-heading h6">{{ section.settings.cta_heading | escape }}</p>
+        {% endif %}
+        {% if section.settings.cta_text != blank %}
+          <p class="faq__cta-body">{{ section.settings.cta_text | escape }}</p>
+        {% endif %}
+      </div>
+      {% if section.settings.cta_button_label != blank %}
+        <a
+          class="{% if section.settings.cta_button_style == 'secondary' %}button-secondary{% else %}button{% endif %}"
+          {% if section.settings.cta_button_link != blank %}
+            href="{{ section.settings.cta_button_link }}"
+          {% else %}
+            role="link" aria-disabled="true"
+          {% endif %}
+        >
+          {{ section.settings.cta_button_label | escape }}
+        </a>
+      {% endif %}
+    </div>
+  {% endif %}
+{% endcapture %}
+
+<div
+  class="section-background{% if section.settings.background_color != blank %} color-custom-{{ section.id }}{% endif %}"
+></div>
+<div
+  class="section section--{{ section.settings.section_width }} spacing-style faq faq--layout-{{ section.settings.layout }} faq--heading-{{ section.settings.heading_alignment }} faq--rows-{{ section.settings.row_style }} faq--icon-{{ section.settings.icon_style }}{% if section.settings.icon_circle %} faq--icon-circle{% endif %} faq--qfont-{{ section.settings.question_font }}{% if section.settings.background_color != blank %} color-custom-{{ section.id }}{% endif %}"
+  style="
+    {% render 'spacing-style', settings: section.settings %}
+    --faq-row-radius: {{ section.settings.row_radius }}px;
+    --faq-row-padding: {{ section.settings.row_padding }}px;
+    {% if section.settings.icon_color != blank and section.settings.icon_color.alpha != 0 %}--faq-icon-color: {{ section.settings.icon_color }};{% endif %}
+    {% if section.settings.row_background != blank %}--faq-row-background: {{ section.settings.row_background }};{% endif %}
+  "
+  data-testid="faq-{{ section.id }}"
+>
+  <div class="faq__inner">
+    <div class="faq__aside">
+      <div class="faq__header">
+        {% if section.settings.eyebrow != blank %}
+          <p class="faq__eyebrow">{{ section.settings.eyebrow | escape }}</p>
+        {% endif %}
+        {% if section.settings.heading != blank %}
+          <h2 class="faq__heading h2">{{ section.settings.heading }}</h2>
+        {% endif %}
+        {% if section.settings.subheading != blank %}
+          <p class="faq__subheading">{{ section.settings.subheading }}</p>
+        {% endif %}
+      </div>
+      {{ cta_html }}
+    </div>
+
+    <div class="faq__list">
+      {% for block in section.blocks %}
+        {% case block.type %}
+          {% when 'group' %}
+            {% if block.settings.title != blank %}
+              <h3 class="faq__group" {{ block.shopify_attributes }}>{{ block.settings.title | escape }}</h3>
+            {% endif %}
+
+          {% when 'question' %}
+            {% capture faq_row %}
+              <details
+                class="details faq__details"
+                {% if block.settings.open_by_default %}
+                  open
+                {% endif %}
+                {% if section.settings.one_at_a_time %}
+                  name="faq-{{ section.id }}"
+                {% endif %}
+                {{ block.shopify_attributes }}
+              >
+                <summary class="details__header faq__question">
+                  <span class="faq__question-text">{{ block.settings.question | escape }}</span>
+                  <span class="faq__icon" aria-hidden="true">
+                    <span class="svg-wrapper icon-caret icon-animated">
+                      {{- 'icon-caret.svg' | inline_asset_content -}}
+                    </span>
+                    <span class="svg-wrapper icon-plus">
+                      {{- 'icon-plus.svg' | inline_asset_content -}}
+                    </span>
+                  </span>
+                </summary>
+                <div class="details-content faq__answer rte">
+                  {{ block.settings.answer }}
+                </div>
+              </details>
+            {% endcapture %}
+            {% render 'accordion-custom-component',
+              children: faq_row,
+              class: 'faq__row',
+              open_by_default_on_desktop: block.settings.open_by_default,
+              open_by_default_on_mobile: block.settings.open_by_default
+            %}
+        {% endcase %}
+      {% endfor %}
+    </div>
+
+    {% if has_cta %}
+      <div class="faq__cta-bottom">
+        {{ cta_html }}
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+{% if section.settings.enable_schema and question_blocks.size > 0 %}
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {% for block in question_blocks %}
+          {
+            "@type": "Question",
+            "name": {{ block.settings.question | strip_html | strip | json }},
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": {{ block.settings.answer | strip_html | strip | json }}
+            }
+          }{% unless forloop.last %},{% endunless %}
+        {% endfor %}
+      ]
+    }
+  </script>
+{% endif %}
+
+{% stylesheet %}
+  .faq {
+    --faq-border: rgba(var(--color-foreground-rgb), 0.14);
+    --faq-border-active: rgba(var(--color-foreground-rgb), 0.3);
+    --faq-tint: rgba(var(--color-foreground-rgb), 0.05);
+    --faq-row-padding-block: var(--faq-row-padding, 28px);
+    --faq-row-padding-inline: calc(var(--faq-row-padding, 28px) * 1.15);
+    --faq-row-gap: 1.25rem;
+  }
+
+  .faq__inner {
+    display: grid;
+    gap: clamp(1.75rem, 3vw, 2.75rem);
+    min-width: 0;
+    width: 100%;
+  }
+
+  /* ---------- Header ---------- */
+  .faq__aside {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    min-width: 0;
+  }
+
+  .faq__header {
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap-sm);
+  }
+
+  .faq__eyebrow {
+    margin: 0;
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    opacity: 0.6;
+  }
+
+  .faq__heading {
+    margin: 0;
+  }
+
+  .faq__subheading {
+    margin: 0;
+    max-width: 52ch;
+    opacity: 0.8;
+  }
+
+  /* ---------- Layouts ---------- */
+  .faq--heading-center .faq__header {
+    align-items: center;
+    text-align: center;
+  }
+
+  .faq--layout-stacked.faq--heading-center .faq__inner {
+    max-width: 56rem;
+    margin-inline: auto;
+  }
+
+  @media screen and (min-width: 990px) {
+    .faq--layout-split .faq__inner {
+      grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+      align-items: start;
+    }
+
+    .faq--layout-split .faq__aside {
+      position: sticky;
+      top: calc(var(--header-group-height, 0px) + 2rem);
+    }
+
+    .faq--layout-split .faq__heading {
+      max-width: 18ch;
+    }
+  }
+
+  /* ---------- Rows ---------- */
+  .faq__list {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+
+  .faq__group {
+    margin: 2rem 0 0.75rem;
+    font-family: var(--font-paragraph--family);
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    opacity: 0.55;
+  }
+
+  .faq__group:first-child {
+    margin-top: 0;
+  }
+
+  .faq__row {
+    display: block;
+    transition:
+      border-color 0.25s ease,
+      background-color 0.25s ease,
+      box-shadow 0.25s ease;
+  }
+
+  .faq__details {
+    display: block;
+  }
+
+  .faq__question {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding-block: var(--faq-row-padding-block);
+    cursor: pointer;
+    list-style: none;
+    font-size: clamp(1.05rem, 0.95rem + 0.5vw, 1.35rem);
+    line-height: 1.3;
+    color: inherit;
+    transition: color 0.2s ease;
+  }
+
+  .faq--qfont-body .faq__question {
+    font-family: var(--font-paragraph--family);
+    font-weight: 700;
+  }
+
+  .faq--qfont-heading .faq__question {
+    font-family: var(--font-h6--family);
+    font-style: var(--font-h6--style);
+    font-weight: var(--font-h6--weight);
+  }
+
+  .faq__question::-webkit-details-marker {
+    display: none;
+  }
+
+  .faq__question:hover {
+    color: inherit;
+  }
+
+  .faq__question-text {
+    flex: 1;
+    min-width: 0;
+  }
+
+  /* Icon — plain coloured plus/caret by default; optional circle */
+  .faq__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 1.5rem;
+    height: 1.5rem;
+    margin-inline-start: auto;
+    color: var(--faq-icon-color, currentColor);
+    transition:
+      background-color 0.25s ease,
+      color 0.25s ease;
+  }
+
+  .faq__icon .svg-wrapper {
+    display: flex;
+    width: 1.25rem;
+    height: 1.25rem;
+    margin-inline-start: 0;
+  }
+
+  .faq__icon svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  .faq--icon-circle .faq__icon {
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 50%;
+    background: var(--faq-tint);
+  }
+
+  .faq--icon-circle .faq__icon .svg-wrapper {
+    width: 0.9rem;
+    height: 0.9rem;
+  }
+
+  .faq--icon-circle .faq__question:hover .faq__icon {
+    background: rgba(var(--color-foreground-rgb), 0.1);
+  }
+
+  .faq--icon-circle .faq__details[open] > .faq__question .faq__icon {
+    background: var(--faq-icon-color, var(--color-foreground));
+    color: var(--color-background);
+  }
+
+  .faq--icon-plus .icon-caret,
+  .faq--icon-caret .icon-plus {
+    display: none;
+  }
+
+  /* Answer */
+  .faq__answer {
+    max-width: 70ch;
+    opacity: 0.85;
+    padding-block-end: var(--faq-row-padding-block);
+  }
+
+  .faq__answer > :first-child {
+    margin-block-start: 0;
+  }
+
+  .faq__answer > :last-child {
+    margin-block-end: 0;
+  }
+
+  /* Cards style */
+  .faq--rows-cards .faq__row {
+    border: 1px solid var(--faq-border);
+    border-radius: var(--faq-row-radius);
+    background: var(--faq-row-background, transparent);
+  }
+
+  .faq--rows-cards .faq__row + .faq__row {
+    margin-top: var(--faq-row-gap);
+  }
+
+  .faq--rows-cards .faq__row:has(.faq__details[open]) {
+    border-color: var(--faq-border-active);
+    box-shadow: 0 8px 24px rgba(var(--color-foreground-rgb), 0.06);
+  }
+
+  .faq--rows-cards .faq__question {
+    padding-inline: var(--faq-row-padding-inline);
+  }
+
+  .faq--rows-cards .faq__answer {
+    padding-inline: var(--faq-row-padding-inline);
+  }
+
+  /* Dividers style */
+  .faq--rows-dividers .faq__row {
+    border-bottom: 1px solid var(--faq-border);
+  }
+
+  .faq--rows-dividers .faq__list > .faq__row:first-child,
+  .faq--rows-dividers .faq__group + .faq__row {
+    border-top: 1px solid var(--faq-border);
+  }
+
+  /* ---------- Contact box ---------- */
+  .faq__cta {
+    display: flex;
+    flex-direction: column;
+    gap: 1.1rem;
+    padding: clamp(1.25rem, 2vw, 1.75rem);
+    border-radius: var(--faq-row-radius);
+    background: var(--faq-tint);
+  }
+
+  .faq__cta-heading {
+    margin: 0;
+  }
+
+  .faq__cta-body {
+    margin: 0.35rem 0 0;
+    opacity: 0.8;
+  }
+
+  .faq__cta .button,
+  .faq__cta .button-secondary {
+    width: fit-content;
+  }
+
+  /* Contact box position: in the aside on desktop split, otherwise below the list */
+  .faq__aside .faq__cta {
+    display: none;
+  }
+
+  .faq__cta-bottom {
+    min-width: 0;
+  }
+
+  .faq--heading-center .faq__cta-bottom .faq__cta {
+    align-items: center;
+    text-align: center;
+  }
+
+  @media screen and (min-width: 990px) {
+    .faq--layout-split .faq__aside .faq__cta {
+      display: flex;
+    }
+
+    .faq--layout-split .faq__cta-bottom {
+      display: none;
+    }
+  }
+
+  /* Tablet+, left-aligned bottom contact box sits as a single row */
+  @media screen and (min-width: 750px) {
+    .faq:not(.faq--heading-center) .faq__cta-bottom .faq__cta {
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+    }
+  }
+
+  /* ---------- Mobile ---------- */
+  @media screen and (max-width: 749px) {
+    .faq {
+      --faq-row-padding-block: calc(var(--faq-row-padding, 28px) * 0.65);
+      --faq-row-padding-inline: calc(var(--faq-row-padding, 28px) * 0.7);
+      --faq-row-gap: 0.85rem;
+    }
+
+    .faq__question {
+      gap: 0.75rem;
+    }
+
+    .faq__icon .svg-wrapper {
+      width: 1.1rem;
+      height: 1.1rem;
+    }
+
+    .faq--icon-circle .faq__icon {
+      width: 1.9rem;
+      height: 1.9rem;
+    }
+
+    .faq--icon-circle .faq__icon .svg-wrapper {
+      width: 0.8rem;
+      height: 0.8rem;
+    }
+
+    .faq__group {
+      margin-top: 1.5rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .faq__row,
+    .faq__icon,
+    .faq__question {
+      transition: none;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Wishluck FAQ",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "max_blocks": 30,
+  "settings": [
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Eyebrow",
+      "info": "Small label above the heading. Leave empty to hide."
+    },
+    {
+      "type": "inline_richtext",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Frequently Asked Questions"
+    },
+    {
+      "type": "inline_richtext",
+      "id": "subheading",
+      "label": "Subheading"
+    },
+    {
+      "type": "select",
+      "id": "layout",
+      "label": "Layout",
+      "options": [
+        { "value": "stacked", "label": "Heading above, questions full width" },
+        { "value": "split", "label": "Heading left, questions right" }
+      ],
+      "default": "stacked"
+    },
+    {
+      "type": "select",
+      "id": "heading_alignment",
+      "label": "Heading alignment",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "center", "label": "Center" }
+      ],
+      "default": "left",
+      "visible_if": "{{ section.settings.layout == \"stacked\" }}"
+    },
+    {
+      "type": "header",
+      "content": "Questions"
+    },
+    {
+      "type": "select",
+      "id": "row_style",
+      "label": "Row style",
+      "options": [
+        { "value": "cards", "label": "Cards" },
+        { "value": "dividers", "label": "Dividers" }
+      ],
+      "default": "cards"
+    },
+    {
+      "type": "select",
+      "id": "question_font",
+      "label": "Question font",
+      "options": [
+        { "value": "body", "label": "Body font, bold" },
+        { "value": "heading", "label": "Heading font" }
+      ],
+      "default": "body"
+    },
+    {
+      "type": "range",
+      "id": "row_padding",
+      "label": "Row padding",
+      "min": 12,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "default": 28
+    },
+    {
+      "type": "range",
+      "id": "row_radius",
+      "label": "Corner radius",
+      "min": 0,
+      "max": 32,
+      "step": 2,
+      "unit": "px",
+      "default": 20,
+      "visible_if": "{{ section.settings.row_style == \"cards\" }}"
+    },
+    {
+      "type": "color",
+      "id": "row_background",
+      "label": "Card background",
+      "info": "Leave empty for transparent.",
+      "visible_if": "{{ section.settings.row_style == \"cards\" }}"
+    },
+    {
+      "type": "checkbox",
+      "id": "one_at_a_time",
+      "label": "Open one question at a time",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Icon"
+    },
+    {
+      "type": "select",
+      "id": "icon_style",
+      "label": "Icon",
+      "options": [
+        { "value": "plus", "label": "Plus / minus" },
+        { "value": "caret", "label": "Caret" }
+      ],
+      "default": "plus"
+    },
+    {
+      "type": "color",
+      "id": "icon_color",
+      "label": "Icon color",
+      "default": "#6B5BD2"
+    },
+    {
+      "type": "checkbox",
+      "id": "icon_circle",
+      "label": "Show icon in a circle",
+      "default": false
+    },
+    {
+      "type": "header",
+      "content": "Contact box",
+      "info": "Optional \"Still have questions?\" box. Leave heading and button empty to hide."
+    },
+    {
+      "type": "text",
+      "id": "cta_heading",
+      "label": "Heading"
+    },
+    {
+      "type": "text",
+      "id": "cta_text",
+      "label": "Text"
+    },
+    {
+      "type": "text",
+      "id": "cta_button_label",
+      "label": "Button label"
+    },
+    {
+      "type": "url",
+      "id": "cta_button_link",
+      "label": "Button link"
+    },
+    {
+      "type": "select",
+      "id": "cta_button_style",
+      "label": "Button style",
+      "options": [
+        { "value": "primary", "label": "Primary" },
+        { "value": "secondary", "label": "Secondary" }
+      ],
+      "default": "primary"
+    },
+    {
+      "type": "header",
+      "content": "Section"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background color",
+      "placeholder": "Default"
+    },
+    {
+      "type": "select",
+      "id": "section_width",
+      "label": "Width",
+      "options": [
+        { "value": "page-width", "label": "Page" },
+        { "value": "full-width", "label": "Full" }
+      ],
+      "default": "page-width"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_schema",
+      "label": "Add FAQ structured data (SEO)",
+      "info": "Helps Google show your questions as rich results.",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Padding"
+    },
+    {
+      "type": "range",
+      "id": "padding-block-start",
+      "label": "Top",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 56
+    },
+    {
+      "type": "range",
+      "id": "padding-block-end",
+      "label": "Bottom",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 56
+    }
+  ],
+  "blocks": [
+    {
+      "type": "question",
+      "name": "Question",
+      "settings": [
+        {
+          "type": "text",
+          "id": "question",
+          "label": "Question",
+          "default": "Are WishLuck toys really screen-free?"
+        },
+        {
+          "type": "richtext",
+          "id": "answer",
+          "label": "Answer",
+          "default": "<p>Yes — every WishLuck toy is 100% screen-free. No apps, no screens; just hands-on play that builds focus, motor skills and imagination.</p>"
+        },
+        {
+          "type": "checkbox",
+          "id": "open_by_default",
+          "label": "Open by default",
+          "default": false
+        }
+      ]
+    },
+    {
+      "type": "group",
+      "name": "Group label",
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Label",
+          "default": "Orders & delivery"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Wishluck FAQ",
+      "category": "t:categories.text",
+      "blocks": [
+        {
+          "type": "question",
+          "settings": {
+            "question": "Are WishLuck toys really screen-free?",
+            "answer": "<p>Yes — every WishLuck toy is 100% screen-free. No apps, no screens; just hands-on play that builds focus, motor skills and imagination.</p>"
+          }
+        },
+        {
+          "type": "question",
+          "settings": {
+            "question": "What age group are these toys suitable for?",
+            "answer": "<p>Our range covers 0–8 years. Every product page shows a recommended age badge, and you can filter any collection by age.</p>"
+          }
+        },
+        {
+          "type": "question",
+          "settings": {
+            "question": "What materials are used?",
+            "answer": "<p>We use child-safe, non-toxic materials — sustainably sourced wood, food-grade silicone and BPA-free plastics — all tested for small parts and sharp edges.</p>"
+          }
+        },
+        {
+          "type": "question",
+          "settings": {
+            "question": "Do you offer Cash on Delivery?",
+            "answer": "<p>Yes, Cash on Delivery is available across India. Simply choose COD as your payment method at checkout.</p>"
+          }
+        },
+        {
+          "type": "question",
+          "settings": {
+            "question": "Can I return or exchange a product?",
+            "answer": "<p>Absolutely. Unused products in their original packaging can be returned or exchanged within 7 days of delivery. Message us on WhatsApp and we'll arrange a pickup.</p>"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,532 @@
+{%- comment -%}
+  Testimonials ("What Parents Say") — a grid of quote cards with an avatar, name and role.
+
+  Performance notes:
+  - Zero JavaScript. Layout and the mobile carousel are pure CSS.
+  - Styles live in {% stylesheet %} so Shopify bundles them into the theme's single CSS file.
+  - Avatars are tiny (rendered at 2x of the display size), lazy-loaded and async-decoded.
+  - Missing avatars fall back to a coloured circle — no placeholder image request.
+  - Quote marks are drawn with CSS so merchants don't have to type them.
+{%- endcomment -%}
+
+{% liquid
+  assign columns = section.settings.columns
+  assign mobile_layout = section.settings.mobile_layout
+  assign card_bg = section.settings.card_color
+
+  # Resolve a readable card text colour once, server-side (mirrors contrast-override logic).
+  if card_bg != blank
+    assign contrast = card_bg | color_contrast: settings.page_text_color
+    assign brightness = card_bg | color_brightness
+    if contrast >= 4.5
+      assign card_fg = settings.page_text_color
+    elsif brightness > 128
+      assign card_fg = 'var(--palette-darkest)'
+    else
+      assign card_fg = 'var(--palette-lightest)'
+    endif
+  else
+    assign card_fg = 'var(--color-foreground)'
+  endif
+
+  if section.settings.background_color != blank
+    render 'contrast-override', background_color: section.settings.background_color, section_id: section.id
+  endif
+%}
+
+<div
+  class="section-background{% if section.settings.background_color != blank %} color-custom-{{ section.id }}{% endif %}"
+></div>
+
+<div
+  class="section section--{{ section.settings.section_width }}{% if section.settings.background_color != blank %} color-custom-{{ section.id }}{% endif %} spacing-style"
+  style="{% render 'spacing-style', settings: section.settings %}"
+  data-testid="testimonials-{{ section.id }}"
+>
+  <div
+    class="testimonials testimonials--mobile-{{ mobile_layout }}{% if section.settings.show_quote_marks %} testimonials--quoted{% endif %}"
+    style="
+      --tm-columns: {{ columns }};
+      --tm-gap: {{ section.settings.gap }}px;
+      --tm-radius: {{ section.settings.corner_radius }}px;
+      --tm-avatar: {{ section.settings.avatar_size }}px;
+      {% if card_bg != blank %}--tm-card-bg: {{ card_bg }};{% endif %}
+      --tm-card-fg: {{ card_fg }};
+    "
+  >
+    {% if section.settings.heading != blank or section.settings.subheading != blank %}
+      <div class="testimonials__header testimonials__header--{{ section.settings.heading_alignment }}">
+        {% if section.settings.heading != blank %}
+          <h2 class="testimonials__heading h2">{{ section.settings.heading | escape }}</h2>
+        {% endif %}
+        {% if section.settings.subheading != blank %}
+          <p class="testimonials__subheading paragraph">{{ section.settings.subheading | escape }}</p>
+        {% endif %}
+      </div>
+    {% endif %}
+
+    <ul class="testimonials__grid list-unstyled" role="list">
+      {% for block in section.blocks %}
+        {% liquid
+          assign bs = block.settings
+          assign rating = bs.rating | default: 0
+        %}
+        <li class="testimonials__item" {{ block.shopify_attributes }}>
+          <figure class="testimonials__card">
+            {% if rating > 0 %}
+              <div
+                class="testimonials__stars"
+                role="img"
+                aria-label="{{ rating }} out of 5 stars"
+              >
+                {% for i in (1..5) %}
+                  <svg
+                    class="testimonials__star{% if i <= rating %} testimonials__star--filled{% endif %}"
+                    viewBox="0 0 20 20"
+                    aria-hidden="true"
+                    focusable="false"
+                  >
+                    <path d="M10 1.5l2.6 5.4 5.9.8-4.3 4.1 1.1 5.9L10 14.9l-5.3 2.8 1.1-5.9L1.5 7.7l5.9-.8z"/>
+                  </svg>
+                {% endfor %}
+              </div>
+            {% endif %}
+
+            {% if bs.quote != blank %}
+              <blockquote class="testimonials__quote">
+                <p class="testimonials__quote-text paragraph">{{ bs.quote | escape }}</p>
+              </blockquote>
+            {% endif %}
+
+            {% if bs.name != blank or bs.role != blank or bs.avatar != blank %}
+              <figcaption class="testimonials__author">
+                {% if bs.avatar != blank %}
+                  {% liquid
+                    assign avatar_px = section.settings.avatar_size | times: 2
+                    assign avatar_dim = avatar_px | append: 'x' | append: avatar_px
+                  %}
+                  {{
+                    bs.avatar
+                    | image_url: width: avatar_px, height: avatar_px, crop: 'center'
+                    | image_tag:
+                      widths: avatar_dim,
+                      sizes: section.settings.avatar_size | append: 'px',
+                      loading: 'lazy',
+                      decoding: 'async',
+                      class: 'testimonials__avatar testimonials__avatar--image',
+                      alt: bs.name
+                  }}
+                {% else %}
+                  <span
+                    class="testimonials__avatar testimonials__avatar--color"
+                    style="--tm-avatar-color: {{ bs.avatar_color | default: '#D9A441' }};"
+                    aria-hidden="true"
+                  ></span>
+                {% endif %}
+
+                <div class="testimonials__meta">
+                  {% if bs.name != blank %}
+                    <span class="testimonials__name">{{ bs.name | escape }}</span>
+                  {% endif %}
+                  {% if bs.role != blank %}
+                    <span class="testimonials__role">{{ bs.role | escape }}</span>
+                  {% endif %}
+                </div>
+              </figcaption>
+            {% endif %}
+          </figure>
+        </li>
+      {% endfor %}
+    </ul>
+  </div>
+</div>
+
+{% stylesheet %}
+  .testimonials {
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap-2xl);
+  }
+
+  .testimonials__header {
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap-xs);
+  }
+
+  .testimonials__header--center {
+    text-align: center;
+    align-items: center;
+  }
+
+  .testimonials__heading,
+  .testimonials__subheading {
+    margin: 0;
+  }
+
+  .testimonials__subheading {
+    color: var(--color-foreground-muted);
+    max-width: 60ch;
+  }
+
+  .testimonials__grid {
+    display: grid;
+    grid-template-columns: repeat(var(--tm-columns), minmax(0, 1fr));
+    gap: var(--tm-gap);
+    margin: 0;
+    padding: 0;
+  }
+
+  .testimonials__item {
+    min-width: 0;
+  }
+
+  .testimonials__card {
+    --tm-card-bg: rgb(var(--color-foreground-rgb) / 0.06);
+
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap-lg);
+    height: 100%;
+    margin: 0;
+    padding: clamp(1.25rem, 6%, 2.5rem);
+    color: var(--tm-card-fg);
+    background-color: var(--tm-card-bg);
+    border-radius: var(--tm-radius);
+  }
+
+  .testimonials__stars {
+    display: flex;
+    gap: 0.125rem;
+  }
+
+  .testimonials__star {
+    width: 1.125rem;
+    height: 1.125rem;
+    fill: color-mix(in srgb, var(--tm-card-fg) 20%, transparent);
+  }
+
+  .testimonials__star--filled {
+    fill: #f0b429;
+  }
+
+  .testimonials__quote {
+    flex: 1 1 auto;
+    margin: 0;
+    padding: 0;
+  }
+
+  .testimonials__quote-text {
+    margin: 0;
+    color: inherit;
+    line-height: 1.6;
+  }
+
+  /* Typographic quote marks drawn by CSS, so merchants never type them */
+  .testimonials--quoted .testimonials__quote-text::before {
+    content: '\201C';
+  }
+
+  .testimonials--quoted .testimonials__quote-text::after {
+    content: '\201D';
+  }
+
+  .testimonials__author {
+    display: flex;
+    align-items: center;
+    gap: var(--gap-sm);
+    margin: 0;
+  }
+
+  .testimonials__avatar {
+    display: block;
+    flex-shrink: 0;
+    width: var(--tm-avatar);
+    height: var(--tm-avatar);
+    border-radius: 50%;
+    object-fit: cover;
+  }
+
+  .testimonials__avatar--color {
+    background-color: var(--tm-avatar-color);
+  }
+
+  .testimonials__meta {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    line-height: 1.35;
+  }
+
+  .testimonials__name {
+    font-weight: 700;
+    color: inherit;
+  }
+
+  .testimonials__role {
+    font-size: 0.9em;
+    color: color-mix(in srgb, var(--tm-card-fg) 65%, transparent);
+  }
+
+  @media screen and (max-width: 989px) {
+    .testimonials__grid {
+      grid-template-columns: repeat(min(var(--tm-columns), 2), minmax(0, 1fr));
+    }
+  }
+
+  @media screen and (max-width: 749px) {
+    .testimonials--mobile-grid-1 .testimonials__grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    /* Horizontal snap carousel, bleeding to the viewport edges — no JS needed */
+    .testimonials--mobile-scroll .testimonials__grid {
+      display: flex;
+      overflow-x: auto;
+      overscroll-behavior-x: contain;
+      scroll-snap-type: x mandatory;
+      scrollbar-width: none;
+      margin-inline: calc(-1 * var(--page-margin));
+      padding-inline: var(--page-margin);
+      scroll-padding-inline: var(--page-margin);
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .testimonials--mobile-scroll .testimonials__grid::-webkit-scrollbar {
+      display: none;
+    }
+
+    .testimonials--mobile-scroll .testimonials__item {
+      flex: 0 0 min(82vw, 22rem);
+      scroll-snap-align: start;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Testimonials",
+  "tag": "section",
+  "max_blocks": 12,
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "What Parents Say"
+    },
+    {
+      "type": "text",
+      "id": "subheading",
+      "label": "Subheading"
+    },
+    {
+      "type": "select",
+      "id": "heading_alignment",
+      "label": "Heading alignment",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "center", "label": "Center" }
+      ],
+      "default": "left"
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "range",
+      "id": "columns",
+      "label": "Columns on desktop",
+      "min": 1,
+      "max": 4,
+      "step": 1,
+      "default": 3
+    },
+    {
+      "type": "select",
+      "id": "mobile_layout",
+      "label": "Mobile layout",
+      "options": [
+        { "value": "grid-1", "label": "1 column" },
+        { "value": "scroll", "label": "Horizontal scroll" }
+      ],
+      "default": "scroll"
+    },
+    {
+      "type": "range",
+      "id": "gap",
+      "label": "Gap between cards",
+      "min": 8,
+      "max": 48,
+      "step": 4,
+      "unit": "px",
+      "default": 24
+    },
+    {
+      "type": "select",
+      "id": "section_width",
+      "label": "Section width",
+      "options": [
+        { "value": "page-width", "label": "Page" },
+        { "value": "full-width", "label": "Full" }
+      ],
+      "default": "page-width"
+    },
+    {
+      "type": "header",
+      "content": "Cards"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_quote_marks",
+      "label": "Show quote marks",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "corner_radius",
+      "label": "Card corner radius",
+      "min": 0,
+      "max": 48,
+      "step": 2,
+      "unit": "px",
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "avatar_size",
+      "label": "Avatar size",
+      "min": 32,
+      "max": 96,
+      "step": 4,
+      "unit": "px",
+      "default": 56
+    },
+    {
+      "type": "color",
+      "id": "card_color",
+      "label": "Card color",
+      "placeholder": "Default",
+      "info": "Leave empty for a subtle tint of the section background."
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Section background",
+      "placeholder": "Default"
+    },
+    {
+      "type": "header",
+      "content": "Padding"
+    },
+    {
+      "type": "range",
+      "id": "padding-block-start",
+      "label": "Top",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 48
+    },
+    {
+      "type": "range",
+      "id": "padding-block-end",
+      "label": "Bottom",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 48
+    }
+  ],
+  "blocks": [
+    {
+      "type": "testimonial",
+      "name": "Testimonial",
+      "settings": [
+        {
+          "type": "textarea",
+          "id": "quote",
+          "label": "Quote",
+          "default": "My daughter hasn't asked for my phone once since we got the story blocks."
+        },
+        {
+          "type": "range",
+          "id": "rating",
+          "label": "Star rating",
+          "min": 0,
+          "max": 5,
+          "step": 1,
+          "default": 0,
+          "info": "Set to 0 to hide stars."
+        },
+        {
+          "type": "text",
+          "id": "name",
+          "label": "Name",
+          "default": "Priya S."
+        },
+        {
+          "type": "text",
+          "id": "role",
+          "label": "Role",
+          "default": "Mother of a 4-year-old"
+        },
+        {
+          "type": "image_picker",
+          "id": "avatar",
+          "label": "Avatar",
+          "info": "Square image works best. Leave empty to show a coloured circle."
+        },
+        {
+          "type": "color",
+          "id": "avatar_color",
+          "label": "Avatar color",
+          "default": "#D9A441",
+          "info": "Used when no avatar image is set."
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Testimonials",
+      "category": "Reviews",
+      "blocks": [
+        {
+          "type": "testimonial",
+          "settings": {
+            "quote": "My daughter hasn't asked for my phone once since we got the story blocks.",
+            "name": "Priya S.",
+            "role": "Mother of a 4-year-old",
+            "avatar_color": "#D9A441"
+          }
+        },
+        {
+          "type": "testimonial",
+          "settings": {
+            "quote": "Good quality wood, and the puzzles actually challenge him.",
+            "name": "Arjun M.",
+            "role": "Father of a 6-year-old",
+            "avatar_color": "#8B7BEA"
+          }
+        },
+        {
+          "type": "testimonial",
+          "settings": {
+            "quote": "Bought it as a birthday gift for my nephew — he loved it more than his tablet games.",
+            "name": "Neha K.",
+            "role": "Aunt, gifted for a 5-year-old",
+            "avatar_color": "#CC8DBD"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

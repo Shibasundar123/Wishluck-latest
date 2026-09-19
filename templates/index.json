@@ -6,89 +6,251 @@
  * or related systems. Please exercise caution as any changes
  * made to this file may be overwritten.
  * ------------------------------------------------------------
- */{
+ */
+{
   "sections": {
-    "hero_jVaWmY": {
-      "type": "hero",
+    "swiper_slideshow_Mqx97Q": {
+      "type": "swiper-slideshow",
       "blocks": {
-        "text_YLPk4p": {
-          "type": "text",
-          "name": "t:names.heading",
+        "slide_zY7Yjr": {
+          "type": "slide",
           "settings": {
-            "text": "<p>Browse our latest products</p>",
-            "text_color": "{{ settings.color_palette.background }}",
-            "width": "fit-content",
-            "max_width": "normal",
-            "alignment": "left",
-            "type_preset": "h2",
-            "font": "var(--font-body--family)",
-            "font_size": "1rem",
-            "line_height": "normal",
-            "letter_spacing": "normal",
-            "case": "none",
-            "wrap": "pretty",
-            "background": false,
-            "background_color": "#00000026",
-            "corner_radius": 0,
-            "padding-block-start": 0,
-            "padding-block-end": 0,
-            "padding-inline-start": 0,
-            "padding-inline-end": 0
-          },
-          "blocks": {}
+            "image": "shopify://shop_images/banner_2_desktop_3.png",
+            "mobile_image": "shopify://shop_images/banner_2_phone_3.png",
+            "link": "",
+            "new_tab": false,
+            "alt": ""
+          }
         },
-        "button_H9gpTf": {
-          "type": "button",
-          "name": "t:names.button",
+        "slide_AWDc6P": {
+          "type": "slide",
           "settings": {
-            "label": "Shop all",
-            "link": "shopify://collections/all",
-            "open_in_new_tab": false,
-            "style_class": "button-custom",
-            "custom_button_background": "rgba(0,0,0,0)",
-            "custom_button_text": "{{ settings.color_palette.background }}",
-            "custom_button_border": "{{ settings.color_palette.background }}",
-            "width": "fit-content",
-            "custom_width": 100,
-            "width_mobile": "fit-content",
-            "custom_width_mobile": 100
-          },
-          "blocks": {}
+            "image": "shopify://shop_images/banner_1_desktop_2.png",
+            "mobile_image": "shopify://shop_images/banner_1_phone.png",
+            "link": "",
+            "new_tab": false,
+            "alt": ""
+          }
+        },
+        "slide_iyYNUp": {
+          "type": "slide",
+          "settings": {
+            "image": "shopify://shop_images/banner_3_desktop_3.png",
+            "mobile_image": "shopify://shop_images/banner_3_phone_3.png",
+            "link": "",
+            "new_tab": false,
+            "alt": ""
+          }
         }
       },
       "block_order": [
-        "text_YLPk4p",
-        "button_H9gpTf"
+        "slide_zY7Yjr",
+        "slide_AWDc6P",
+        "slide_iyYNUp"
       ],
-      "name": "t:names.hero",
+      "name": "Swiper slideshow",
       "settings": {
-        "media_type_1": "image",
-        "media_type_2": "image",
-        "stack_media_on_mobile": false,
-        "custom_mobile_media": false,
-        "media_type_1_mobile": "image",
-        "media_type_2_mobile": "image",
-        "open_in_new_tab": false,
-        "content_direction": "column",
-        "vertical_on_mobile": true,
-        "horizontal_alignment": "space-between",
-        "vertical_alignment": "flex-end",
-        "align_baseline": true,
-        "horizontal_alignment_flex_direction_column": "center",
-        "vertical_alignment_flex_direction_column": "flex-end",
+        "section_width": "full-width",
+        "desktop_ratio": "adapt",
+        "mobile_ratio": "adapt",
+        "corner_radius": 16,
+        "slide_gap": 0,
+        "background_color": "",
+        "autoplay": true,
+        "autoplay_delay": 5,
+        "pause_on_hover": true,
+        "loop": true,
+        "effect": "slide",
+        "speed": 600,
+        "show_arrows": true,
+        "arrows_mobile": false,
+        "arrow_size": 44,
+        "show_dots": true,
+        "controls_color": "#ffffff",
+        "padding-block-start": 0,
+        "padding-block-end": 0
+      }
+    },
+    "marquee_banner_B37BGf": {
+      "type": "marquee-banner",
+      "blocks": {
+        "item_FEU3hQ": {
+          "type": "item",
+          "settings": {
+            "text": "Pan-India delivery"
+          }
+        },
+        "item_9nJBWH": {
+          "type": "item",
+          "settings": {
+            "text": "14-day guarantee"
+          }
+        },
+        "item_xjJW7m": {
+          "type": "item",
+          "settings": {
+            "text": "Free care support"
+          }
+        },
+        "item_LGNdef": {
+          "type": "item",
+          "settings": {
+            "text": "Pan-India delivery"
+          }
+        },
+        "item_WKChxP": {
+          "type": "item",
+          "settings": {
+            "text": "14-day guarantee"
+          }
+        },
+        "item_cKmqGV": {
+          "type": "item",
+          "settings": {
+            "text": "Free care support"
+          }
+        }
+      },
+      "block_order": [
+        "item_FEU3hQ",
+        "item_9nJBWH",
+        "item_xjJW7m",
+        "item_LGNdef",
+        "item_WKChxP",
+        "item_cKmqGV"
+      ],
+      "name": "Marquee Banner",
+      "settings": {
+        "bg_color": "#ffd23f",
+        "text_color": "#1a1a1a",
+        "speed": 20,
+        "icon_size": 32,
+        "gap": 48,
+        "padding_top": 24,
+        "padding_bottom": 0,
+        "show_mobile": true,
+        "show_tablet": true,
+        "show_desktop": true
+      }
+    },
+    "shop_by_age_zq3byN": {
+      "type": "shop-by-age",
+      "blocks": {
+        "age_card_YzLFDM": {
+          "type": "age_card",
+          "settings": {
+            "image": "shopify://shop_images/0-2.png",
+            "title": "0–2 Years",
+            "description": "Sensory play & first learning",
+            "link": "",
+            "card_color": "#eedbb8",
+            "text_color": ""
+          }
+        },
+        "age_card_R8Q77y": {
+          "type": "age_card",
+          "settings": {
+            "image": "shopify://shop_images/3-5_eb428322-ef6e-4e1f-9c26-80a44f0557f1.png",
+            "title": "3–5 Years",
+            "description": "Curiosity & motor skills",
+            "link": "",
+            "card_color": "#ddd5f8",
+            "text_color": ""
+          }
+        },
+        "age_card_HkdNxr": {
+          "type": "age_card",
+          "settings": {
+            "image": "shopify://shop_images/6-8.png",
+            "title": "6–8 Years",
+            "description": "Logic & creativity",
+            "link": "",
+            "card_color": "#f1d4e2",
+            "text_color": ""
+          }
+        },
+        "age_card_m6BAhg": {
+          "type": "age_card",
+          "settings": {
+            "image": "shopify://shop_images/9_c2e429aa-9293-4f10-bed5-4cd6e5c26f15.png",
+            "title": "9+ Years",
+            "description": "STEM & strategy",
+            "link": "",
+            "card_color": "#d3e9cf",
+            "text_color": ""
+          }
+        }
+      },
+      "block_order": [
+        "age_card_YzLFDM",
+        "age_card_R8Q77y",
+        "age_card_HkdNxr",
+        "age_card_m6BAhg"
+      ],
+      "name": "Shop by age",
+      "settings": {
+        "heading": "Shop by Age",
+        "subheading": "",
+        "heading_alignment": "left",
+        "columns": 4,
+        "mobile_layout": "grid-2",
+        "image_ratio": "landscape",
+        "corner_radius": 24,
         "gap": 24,
         "section_width": "page-width",
-        "section_height": "medium",
-        "section_height_custom": 50,
-        "background_color": "rgba(0,0,0,0)",
-        "toggle_overlay": true,
-        "overlay_color": "#12121266",
-        "overlay_style": "solid",
-        "gradient_direction": "to bottom",
-        "blurred_reflection": false,
-        "reflection_opacity": 75,
-        "padding-block-start": 100,
-        "padding-block-end": 72
+        "background_color": "",
+        "eager_first_row": false,
+        "padding-block-start": 48,
+        "padding-block-end": 48
+      }
+    },
+    "pick_your_play_gDXUxF": {
+      "type": "pick-your-play",
+      "blocks": {
+        "play_card_xG6bkF": {
+          "type": "play_card",
+          "settings": {
+            "image": "shopify://shop_images/toys.png",
+            "title": "Toys",
+            "description": "Wooden, sensory & building toys for hands-on play.",
+            "link": "",
+            "link_label": "Shop Toys",
+            "card_color": "#f4e8d4",
+            "text_color": ""
+          }
+        },
+        "play_card_dFgqz7": {
+          "type": "play_card",
+          "settings": {
+            "image": "shopify://shop_images/books.png",
+            "title": "Books",
+            "description": "Interactive, pop-up & story books for early readers.",
+            "link": "",
+            "link_label": "Shop Books",
+            "card_color": "#e4e1fa",
+            "text_color": ""
+          }
+        }
+      },
+      "block_order": [
+        "play_card_xG6bkF",
+        "play_card_dFgqz7"
+      ],
+      "name": "Pick your play",
+      "settings": {
+        "heading": "Toys or Books — Pick Your Play",
+        "subheading": "",
+        "heading_alignment": "left",
+        "columns": "2",
+        "mobile_layout": "stack",
+        "image_ratio": "wide",
+        "corner_radius": 24,
+        "gap": 32,
+        "section_width": "page-width",
+        "background_color": "",
+        "eager_first_row": false,
+        "padding-block-start": 48,
+        "padding-block-end": 48
       }
     },
     "product_list_fa6P9H": {
@@ -114,11 +276,13 @@
             "height": "fit",
             "custom_height": 100,
             "background_media": "none",
+            "background_color": "",
             "video_position": "cover",
             "background_image_position": "cover",
             "border": "none",
             "border_width": 1,
             "border_opacity": 100,
+            "border_color": "",
             "border_radius": 0,
             "padding-block-start": 0,
             "padding-block-end": 0,
@@ -130,16 +294,18 @@
               "type": "_product-list-text",
               "name": "t:names.collection_title",
               "settings": {
-                "text": "<h3>{{ closest.collection.title }}</h3>",
+                "text": "<h3>Best Sellers</h3>",
                 "width": "fit-content",
                 "max_width": "normal",
                 "alignment": "left",
-                "type_preset": "h4",
+                "type_preset": "h2",
                 "font": "var(--font-body--family)",
+                "font_size": "1rem",
                 "line_height": "normal",
                 "letter_spacing": "normal",
                 "case": "none",
                 "wrap": "pretty",
+                "text_color": "",
                 "background": false,
                 "background_color": "#00000026",
                 "corner_radius": 0,
@@ -157,6 +323,10 @@
                 "label": "View all",
                 "open_in_new_tab": false,
                 "style_class": "link",
+                "custom_button_background": "{{ settings.color_palette.foreground }}",
+                "custom_button_text": "{{ settings.color_palette.background }}",
+                "custom_button_border": "{{ settings.color_palette.background }}",
+                "link_text_color": "",
                 "width": "fit-content",
                 "custom_width": 100,
                 "width_mobile": "fit-content",
@@ -176,9 +346,11 @@
           "static": true,
           "settings": {
             "product_card_gap": 4,
+            "background_color": "",
             "border": "none",
             "border_width": 1,
             "border_opacity": 100,
+            "border_color": "",
             "border_radius": 0,
             "padding-block-start": 0,
             "padding-block-end": 0,
@@ -194,6 +366,7 @@
                 "border": "none",
                 "border_width": 1,
                 "border_opacity": 100,
+                "border_color": "",
                 "border_radius": 0,
                 "padding-block-start": 0,
                 "padding-block-end": 0,
@@ -216,6 +389,7 @@
                 "letter_spacing": "normal",
                 "case": "none",
                 "wrap": "pretty",
+                "text_color": "",
                 "background": false,
                 "background_color": "#00000026",
                 "corner_radius": 0,
@@ -241,6 +415,7 @@
                 "line_height": "normal",
                 "letter_spacing": "normal",
                 "case": "none",
+                "text_color": "",
                 "padding-block-start": 0,
                 "padding-block-end": 0,
                 "padding-inline-start": 0,
@@ -261,7 +436,7 @@
         "collection": "all",
         "layout_type": "grid",
         "carousel_on_mobile": false,
-        "max_products": 8,
+        "max_products": 4,
         "columns": 4,
         "mobile_columns": "2",
         "mobile_card_size": "60cqw",
@@ -276,10 +451,221 @@
         "padding-block-start": 48,
         "padding-block-end": 48
       }
+    },
+    "gifting_occasions_QhYKUw": {
+      "type": "gifting-occasions",
+      "blocks": {
+        "occasion_yLKp33": {
+          "type": "occasion",
+          "settings": {
+            "icon": "gift",
+            "icon_color": "#e0a43c",
+            "title": "Birthday Gifts",
+            "text": "Toys kids remember long after the party.",
+            "link": ""
+          }
+        },
+        "occasion_MLBTG8": {
+          "type": "occasion",
+          "settings": {
+            "icon": "burst",
+            "icon_color": "#8b7be8",
+            "title": "Festival Specials",
+            "text": "Diwali & Rakhi gifting, sorted.",
+            "link": ""
+          }
+        },
+        "occasion_tpVqwN": {
+          "type": "occasion",
+          "settings": {
+            "icon": "heart",
+            "icon_color": "#d49ac8",
+            "title": "New Baby",
+            "text": "Gentle first toys for newborns.",
+            "link": ""
+          }
+        },
+        "occasion_znjfX6": {
+          "type": "occasion",
+          "settings": {
+            "icon": "medal",
+            "icon_color": "#8fbf7a",
+            "title": "School Rewards",
+            "text": "Celebrate report cards the right way.",
+            "link": ""
+          }
+        }
+      },
+      "block_order": [
+        "occasion_yLKp33",
+        "occasion_MLBTG8",
+        "occasion_tpVqwN",
+        "occasion_znjfX6"
+      ],
+      "name": "Gifting occasions",
+      "settings": {
+        "heading": "Gifting Made Easy",
+        "subheading": "Not sure what to gift? Pick an occasion and we'll do the rest.",
+        "alignment": "left",
+        "columns_desktop": 4,
+        "mobile_layout": "grid",
+        "card_alignment": "left",
+        "icon_style": "plain",
+        "icon_size": 40,
+        "card_radius": 20,
+        "card_border": true,
+        "card_background": "",
+        "background_color": "",
+        "section_width": "page-width",
+        "padding-block-start": 48,
+        "padding-block-end": 48
+      }
+    },
+    "testimonials_77dPU7": {
+      "type": "testimonials",
+      "blocks": {
+        "testimonial_iEJMWL": {
+          "type": "testimonial",
+          "settings": {
+            "quote": "My daughter hasn't asked for my phone once since we got the story blocks.",
+            "rating": 0,
+            "name": "Priya S.",
+            "role": "Mother of a 4-year-old",
+            "avatar_color": "#d9a441"
+          }
+        },
+        "testimonial_tAhxJB": {
+          "type": "testimonial",
+          "settings": {
+            "quote": "Good quality wood, and the puzzles actually challenge him.",
+            "rating": 0,
+            "name": "Arjun M.",
+            "role": "Father of a 6-year-old",
+            "avatar_color": "#8b7bea"
+          }
+        },
+        "testimonial_XUzVA7": {
+          "type": "testimonial",
+          "settings": {
+            "quote": "Bought it as a birthday gift for my nephew — he loved it more than his tablet games.",
+            "rating": 0,
+            "name": "Neha K.",
+            "role": "Aunt, gifted for a 5-year-old",
+            "avatar_color": "#cc8dbd"
+          }
+        }
+      },
+      "block_order": [
+        "testimonial_iEJMWL",
+        "testimonial_tAhxJB",
+        "testimonial_XUzVA7"
+      ],
+      "name": "Testimonials",
+      "settings": {
+        "heading": "What Parents Say",
+        "subheading": "",
+        "heading_alignment": "left",
+        "columns": 3,
+        "mobile_layout": "scroll",
+        "gap": 24,
+        "section_width": "page-width",
+        "show_quote_marks": true,
+        "corner_radius": 24,
+        "avatar_size": 56,
+        "card_color": "",
+        "background_color": "",
+        "padding-block-start": 48,
+        "padding-block-end": 48
+      }
+    },
+    "faq_JzW9wp": {
+      "type": "faq",
+      "blocks": {
+        "question_3wn6Te": {
+          "type": "question",
+          "settings": {
+            "question": "Are WishLuck toys really screen-free?",
+            "answer": "<p>Yes — every WishLuck toy is 100% screen-free. No apps, no screens; just hands-on play that builds focus, motor skills and imagination.</p>",
+            "open_by_default": false
+          }
+        },
+        "question_dF437B": {
+          "type": "question",
+          "settings": {
+            "question": "What age group are these toys suitable for?",
+            "answer": "<p>Our range covers 0–8 years. Every product page shows a recommended age badge, and you can filter any collection by age.</p>",
+            "open_by_default": false
+          }
+        },
+        "question_ThfEF7": {
+          "type": "question",
+          "settings": {
+            "question": "What materials are used?",
+            "answer": "<p>We use child-safe, non-toxic materials — sustainably sourced wood, food-grade silicone and BPA-free plastics — all tested for small parts and sharp edges.</p>",
+            "open_by_default": false
+          }
+        },
+        "question_g8KL99": {
+          "type": "question",
+          "settings": {
+            "question": "Do you offer Cash on Delivery?",
+            "answer": "<p>Yes, Cash on Delivery is available across India. Simply choose COD as your payment method at checkout.</p>",
+            "open_by_default": false
+          }
+        },
+        "question_aMKBLz": {
+          "type": "question",
+          "settings": {
+            "question": "Can I return or exchange a product?",
+            "answer": "<p>Absolutely. Unused products in their original packaging can be returned or exchanged within 7 days of delivery. Message us on WhatsApp and we'll arrange a pickup.</p>",
+            "open_by_default": false
+          }
+        }
+      },
+      "block_order": [
+        "question_3wn6Te",
+        "question_dF437B",
+        "question_ThfEF7",
+        "question_g8KL99",
+        "question_aMKBLz"
+      ],
+      "name": "Wishluck FAQ",
+      "settings": {
+        "eyebrow": "",
+        "heading": "Frequently Asked Questions",
+        "subheading": "",
+        "layout": "stacked",
+        "heading_alignment": "left",
+        "row_style": "cards",
+        "question_font": "body",
+        "row_padding": 12,
+        "row_radius": 20,
+        "row_background": "",
+        "one_at_a_time": true,
+        "icon_style": "plus",
+        "icon_color": "#6b5bd2",
+        "icon_circle": false,
+        "cta_heading": "",
+        "cta_text": "",
+        "cta_button_label": "",
+        "cta_button_link": "",
+        "cta_button_style": "primary",
+        "background_color": "",
+        "section_width": "page-width",
+        "enable_schema": true,
+        "padding-block-start": 56,
+        "padding-block-end": 56
+      }
     }
   },
   "order": [
-    "hero_jVaWmY",
-    "product_list_fa6P9H"
+    "swiper_slideshow_Mqx97Q",
+    "marquee_banner_B37BGf",
+    "shop_by_age_zq3byN",
+    "pick_your_play_gDXUxF",
+    "product_list_fa6P9H",
+    "gifting_occasions_QhYKUw",
+    "testimonials_77dPU7",
+    "faq_JzW9wp"
   ]
 }

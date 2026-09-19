@@ -1,0 +1,644 @@
+{%- comment -%}
+  Swiper Slideshow — image banner slider with separate desktop / mobile images per slide,
+  each optionally wrapped in a link.
+
+  - Built on Swiper 11 (https://swiperjs.com), loaded from jsDelivr only when this section
+    is on the page. Logic lives in assets/swiper-slideshow.js (<swiper-slideshow> element).
+  - Desktop + mobile art direction via <picture>; mobile falls back to the desktop image.
+  - Aspect ratio is reserved in CSS (from the first slide or a fixed preset) so nothing
+    shifts while images / Swiper load. Before Swiper boots, only the first slide is shown.
+  - First slide is eager + high priority (this is usually above the fold); the rest lazy-load.
+  - Autoplay respects prefers-reduced-motion and pauses while a block is selected in the editor.
+{%- endcomment -%}
+
+<link
+  rel="stylesheet"
+  href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"
+  media="all"
+>
+<script
+  src="{{ 'swiper-slideshow.js' | asset_url }}"
+  type="module"
+></script>
+
+{% liquid
+  assign st = section.settings
+  assign first = section.blocks.first.settings
+
+  # ---- Aspect ratios (CSS `aspect-ratio` accepts a bare number) ----
+  if st.desktop_ratio == 'adapt'
+    if first.image != blank
+      assign desktop_ratio = first.image.aspect_ratio
+    else
+      assign desktop_ratio = 2.4
+    endif
+  else
+    assign desktop_ratio = st.desktop_ratio
+  endif
+
+  if st.mobile_ratio == 'adapt'
+    if first.mobile_image != blank
+      assign mobile_ratio = first.mobile_image.aspect_ratio
+    elsif first.image != blank
+      assign mobile_ratio = first.image.aspect_ratio
+    else
+      assign mobile_ratio = 0.8
+    endif
+  else
+    assign mobile_ratio = st.mobile_ratio
+  endif
+
+  # ---- Responsive `sizes` ----
+  if st.section_width == 'full-width'
+    assign sizes = '100vw'
+  else
+    assign sizes = '(min-width: 990px) min(calc(100vw - 80px), 1920px), 100vw'
+  endif
+
+  assign rounded = false
+  if st.section_width == 'page-width' and st.corner_radius > 0
+    assign rounded = true
+  endif
+
+  if st.background_color != blank
+    render 'contrast-override', background_color: st.background_color, section_id: section.id
+  endif
+%}
+
+<div
+  class="section-background{% if st.background_color != blank %} color-custom-{{ section.id }}{% endif %}"
+></div>
+
+<div
+  class="section section--{{ st.section_width }}{% if st.background_color != blank %} color-custom-{{ section.id }}{% endif %} spacing-style"
+  style="{% render 'spacing-style', settings: st %}"
+  data-testid="swiper-slideshow-{{ section.id }}"
+>
+  <swiper-slideshow
+    class="sws{% if rounded %} sws--rounded{% endif %}{% if st.arrows_mobile == false %} sws--hide-arrows-mobile{% endif %}"
+    style="
+      --sws-ratio-desktop: {{ desktop_ratio }};
+      --sws-ratio-mobile: {{ mobile_ratio }};
+      --sws-radius: {{ st.corner_radius }}px;
+      --sws-arrow-size: {{ st.arrow_size }}px;
+      --sws-accent: {{ st.controls_color }};
+    "
+    data-autoplay="{{ st.autoplay }}"
+    data-delay="{{ st.autoplay_delay | times: 1000 }}"
+    data-loop="{{ st.loop }}"
+    data-effect="{{ st.effect }}"
+    data-speed="{{ st.speed }}"
+    data-space="{{ st.slide_gap }}"
+    data-pause-on-hover="{{ st.pause_on_hover }}"
+    data-arrows="{{ st.show_arrows }}"
+    data-pagination="{{ st.show_dots }}"
+    role="region"
+    aria-roledescription="carousel"
+    aria-label="{{ 'accessibility.slideshow' | t }}"
+  >
+    <div class="swiper sws__swiper">
+      <div class="swiper-wrapper">
+        {% for block in section.blocks %}
+          {% liquid
+            assign bs = block.settings
+
+            if bs.link != blank
+              assign tag = 'a'
+            else
+              assign tag = 'div'
+            endif
+
+            if forloop.first
+              assign loading = 'eager'
+              assign priority = 'high'
+            else
+              assign loading = 'lazy'
+              assign priority = 'auto'
+            endif
+
+            assign alt = bs.alt | default: bs.image.alt | default: shop.name
+          %}
+          <div
+            class="swiper-slide sws__slide"
+            data-index="{{ forloop.index0 }}"
+            role="group"
+            aria-roledescription="slide"
+            aria-label="{{ 'accessibility.slide_status' | t: index: forloop.index, length: forloop.length }}"
+            {{ block.shopify_attributes }}
+          >
+            <{{ tag }}
+              class="sws__media"
+              {% if tag == 'a' %}
+                href="{{ bs.link }}"
+                {% if bs.new_tab %}
+                  target="_blank" rel="noopener"
+                {% endif %}
+                {% if bs.alt != blank %}
+                  aria-label="{{ bs.alt | escape }}"
+                {% endif %}
+              {% endif %}
+            >
+              {% if bs.image != blank or bs.mobile_image != blank %}
+                <picture class="sws__picture">
+                  {% if bs.mobile_image != blank %}
+                    <source
+                      media="(max-width: 749px)"
+                      srcset="
+                        {{ bs.mobile_image | image_url: width: 400 }} 400w,
+                        {{ bs.mobile_image | image_url: width: 600 }} 600w,
+                        {{ bs.mobile_image | image_url: width: 750 }} 750w,
+                        {{ bs.mobile_image | image_url: width: 1000 }} 1000w,
+                        {{ bs.mobile_image | image_url: width: 1500 }} 1500w
+                      "
+                      sizes="100vw"
+                      width="{{ bs.mobile_image.width }}"
+                      height="{{ bs.mobile_image.height }}"
+                    >
+                  {% endif %}
+                  {% liquid
+                    assign main_image = bs.image
+                    if main_image == blank
+                      assign main_image = bs.mobile_image
+                    endif
+                  %}
+                  {{
+                    main_image
+                    | image_url: width: 3200
+                    | image_tag:
+                      widths: '750, 1000, 1200, 1500, 1800, 2000, 2400, 2800, 3200',
+                      sizes: sizes,
+                      loading: loading,
+                      fetchpriority: priority,
+                      decoding: 'async',
+                      class: 'sws__img',
+                      alt: alt
+                  }}
+                </picture>
+              {% else %}
+                {{ 'hero-apparel-1' | placeholder_svg_tag: 'sws__img sws__img--placeholder' }}
+              {% endif %}
+            </{{ tag }}>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    {% if section.blocks.size > 1 %}
+      {% if st.show_arrows %}
+        <button
+          type="button"
+          class="sws__arrow sws__arrow--prev"
+          aria-label="{{ 'accessibility.slideshow_previous' | t }}"
+        >
+          {{- 'icon-chevron-left.svg' | inline_asset_content -}}
+        </button>
+        <button
+          type="button"
+          class="sws__arrow sws__arrow--next"
+          aria-label="{{ 'accessibility.slideshow_next' | t }}"
+        >
+          {{- 'icon-chevron-right.svg' | inline_asset_content -}}
+        </button>
+      {% endif %}
+
+      {% if st.show_dots %}
+        <div class="sws__pagination"></div>
+      {% endif %}
+    {% endif %}
+  </swiper-slideshow>
+</div>
+
+{% stylesheet %}
+  .sws {
+    --sws-ratio: var(--sws-ratio-desktop);
+
+    position: relative;
+    display: block;
+    width: 100%;
+  }
+
+  /* --- Container --------------------------------------------------------- */
+  .sws__swiper {
+    width: 100%;
+    overflow: hidden;
+  }
+
+  .sws--rounded .sws__swiper {
+    border-radius: var(--sws-radius);
+    /* Keeps the rounded clip stable while slides translate */
+    isolation: isolate;
+  }
+
+  /*
+    Pre-init fallback: mirror Swiper's own layout (flex row, 100% wide slides inside an
+    overflow-hidden box) so only the first slide is visible before the library boots.
+  */
+  .swiper-wrapper {
+    display: flex;
+  }
+
+  .sws__slide {
+    flex-shrink: 0;
+    width: 100%;
+    min-width: 0;
+  }
+
+  /* --- Media ------------------------------------------------------------- */
+  .sws__media {
+    display: block;
+    width: 100%;
+    aspect-ratio: var(--sws-ratio);
+    overflow: hidden;
+    text-decoration: none;
+    color: inherit;
+    background: rgb(var(--color-foreground-rgb) / 0.05);
+  }
+
+  a.sws__media:focus-visible {
+    outline: 2px solid var(--sws-accent);
+    outline-offset: -4px;
+  }
+
+  .sws__picture {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  .sws__img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .sws__img--placeholder {
+    background: rgb(var(--color-foreground-rgb) / 0.08);
+  }
+
+  /* --- Arrows ------------------------------------------------------------ */
+  .sws__arrow {
+    --icon-stroke-width: 1.5px;
+
+    position: absolute;
+    top: 50%;
+    z-index: 2;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--sws-arrow-size);
+    height: var(--sws-arrow-size);
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: rgb(255 255 255 / 0.85);
+    color: #111;
+    cursor: pointer;
+    transform: translateY(-50%);
+    box-shadow: 0 2px 10px rgb(0 0 0 / 0.15);
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+    transition: opacity var(--animation-speed, 200ms) ease, background-color var(--animation-speed, 200ms) ease;
+  }
+
+  .sws__arrow svg {
+    width: calc(var(--sws-arrow-size) * 0.32);
+    height: auto;
+  }
+
+  .sws__arrow--prev {
+    left: calc(var(--sws-arrow-size) * 0.4);
+  }
+
+  .sws__arrow--next {
+    right: calc(var(--sws-arrow-size) * 0.4);
+  }
+
+  .sws__arrow:hover {
+    background: #fff;
+  }
+
+  .sws__arrow:focus-visible {
+    outline: 2px solid var(--sws-accent);
+    outline-offset: 2px;
+  }
+
+  .sws__arrow.swiper-button-disabled {
+    opacity: 0.35;
+    pointer-events: none;
+  }
+
+  .sws__arrow.swiper-button-lock,
+  .sws:not(.is-ready) .sws__arrow {
+    display: none;
+  }
+
+  /* --- Pagination -------------------------------------------------------- */
+  .sws__pagination {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: clamp(0.75rem, 2.5%, 1.5rem);
+    z-index: 2;
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    pointer-events: none;
+  }
+
+  .sws__pagination.swiper-pagination-lock,
+  .sws:not(.is-ready) .sws__pagination {
+    display: none;
+  }
+
+  .sws__bullet {
+    width: 0.5rem;
+    height: 0.5rem;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 999px;
+    background: var(--sws-accent);
+    opacity: 0.45;
+    cursor: pointer;
+    pointer-events: auto;
+    transition: width var(--animation-speed, 200ms) ease, opacity var(--animation-speed, 200ms) ease;
+  }
+
+  .sws__bullet.is-active {
+    width: 1.5rem;
+    opacity: 1;
+  }
+
+  .sws__bullet:focus-visible {
+    outline: 2px solid var(--sws-accent);
+    outline-offset: 2px;
+  }
+
+  /* --- Responsive -------------------------------------------------------- */
+  @media screen and (max-width: 749px) {
+    .sws {
+      --sws-ratio: var(--sws-ratio-mobile);
+    }
+
+    .sws--hide-arrows-mobile .sws__arrow {
+      display: none;
+    }
+
+    .sws__arrow {
+      --sws-arrow-size: 36px;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .sws__arrow,
+    .sws__bullet {
+      transition: none;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Swiper slideshow",
+  "tag": "section",
+  "max_blocks": 10,
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "settings": [
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "select",
+      "id": "section_width",
+      "label": "Section width",
+      "options": [
+        { "value": "full-width", "label": "Full" },
+        { "value": "page-width", "label": "Page" }
+      ],
+      "default": "full-width"
+    },
+    {
+      "type": "select",
+      "id": "desktop_ratio",
+      "label": "Desktop image ratio",
+      "options": [
+        { "value": "adapt", "label": "Adapt to first image" },
+        { "value": "3", "label": "3:1 (very wide)" },
+        { "value": "2.4", "label": "12:5 (wide)" },
+        { "value": "2", "label": "2:1" },
+        { "value": "1.7778", "label": "16:9" }
+      ],
+      "default": "adapt",
+      "info": "All slides share the same ratio; images are cropped to fit."
+    },
+    {
+      "type": "select",
+      "id": "mobile_ratio",
+      "label": "Mobile image ratio",
+      "options": [
+        { "value": "adapt", "label": "Adapt to first image" },
+        { "value": "1.7778", "label": "16:9" },
+        { "value": "1", "label": "1:1 (square)" },
+        { "value": "0.8", "label": "4:5" },
+        { "value": "0.75", "label": "3:4" },
+        { "value": "0.5625", "label": "9:16 (story)" }
+      ],
+      "default": "adapt"
+    },
+    {
+      "type": "range",
+      "id": "corner_radius",
+      "label": "Corner radius",
+      "info": "Applies to Page width only.",
+      "min": 0,
+      "max": 48,
+      "step": 2,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "slide_gap",
+      "label": "Gap between slides",
+      "min": 0,
+      "max": 40,
+      "step": 4,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Section background",
+      "placeholder": "Default"
+    },
+    {
+      "type": "header",
+      "content": "Behaviour"
+    },
+    {
+      "type": "checkbox",
+      "id": "autoplay",
+      "label": "Auto-rotate slides",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "autoplay_delay",
+      "label": "Change slides every",
+      "min": 2,
+      "max": 12,
+      "step": 1,
+      "unit": "s",
+      "default": 5
+    },
+    {
+      "type": "checkbox",
+      "id": "pause_on_hover",
+      "label": "Pause on hover",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "loop",
+      "label": "Loop infinitely",
+      "default": true
+    },
+    {
+      "type": "select",
+      "id": "effect",
+      "label": "Transition",
+      "options": [
+        { "value": "slide", "label": "Slide" },
+        { "value": "fade", "label": "Fade" }
+      ],
+      "default": "slide"
+    },
+    {
+      "type": "range",
+      "id": "speed",
+      "label": "Transition speed",
+      "min": 200,
+      "max": 1500,
+      "step": 100,
+      "unit": "ms",
+      "default": 600
+    },
+    {
+      "type": "header",
+      "content": "Controls"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_arrows",
+      "label": "Show arrows",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "arrows_mobile",
+      "label": "Show arrows on mobile",
+      "default": false
+    },
+    {
+      "type": "range",
+      "id": "arrow_size",
+      "label": "Arrow size",
+      "min": 32,
+      "max": 64,
+      "step": 4,
+      "unit": "px",
+      "default": 44
+    },
+    {
+      "type": "checkbox",
+      "id": "show_dots",
+      "label": "Show dots",
+      "default": true
+    },
+    {
+      "type": "color",
+      "id": "controls_color",
+      "label": "Dots / focus color",
+      "default": "#FFFFFF"
+    },
+    {
+      "type": "header",
+      "content": "Padding"
+    },
+    {
+      "type": "range",
+      "id": "padding-block-start",
+      "label": "Top",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding-block-end",
+      "label": "Bottom",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 0
+    }
+  ],
+  "blocks": [
+    {
+      "type": "slide",
+      "name": "Slide",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Desktop image",
+          "info": "Recommended: 2400 × 1000 px or wider."
+        },
+        {
+          "type": "image_picker",
+          "id": "mobile_image",
+          "label": "Mobile image",
+          "info": "Shown below 750px. Recommended: 1000 × 1250 px. Falls back to the desktop image if empty."
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "Link"
+        },
+        {
+          "type": "checkbox",
+          "id": "new_tab",
+          "label": "Open link in new tab",
+          "default": false
+        },
+        {
+          "type": "text",
+          "id": "alt",
+          "label": "Alt text / link label",
+          "info": "Describe the banner for screen readers and SEO, e.g. \"Diwali sale – up to 40% off\"."
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Swiper slideshow",
+      "category": "Banners",
+      "blocks": [
+        { "type": "slide" },
+        { "type": "slide" },
+        { "type": "slide" }
+      ]
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,272 @@
+<style>
+  .marquee-banner {
+    background: var(--marquee-bg, #FFD23F);
+    color: var(--marquee-color, #1A1A1A);
+    overflow: hidden;
+    width: 100%;
+  }
+
+  .marquee-banner__track {
+    display: flex;
+    width: max-content;
+    animation: marquee-scroll var(--marquee-duration, 20s) linear infinite;
+  }
+
+  .marquee-banner:hover .marquee-banner__track {
+    animation-play-state: paused;
+  }
+
+  .marquee-banner__group {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+    gap: var(--marquee-gap, 48px);
+    padding-right: var(--marquee-gap, 48px);
+  }
+
+  .marquee-banner__item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    white-space: nowrap;
+    padding: 12px 0;
+  }
+
+  .marquee-banner__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--marquee-icon-size, 32px);
+    height: var(--marquee-icon-size, 32px);
+    border-radius: 50%;
+    background: #fff;
+    flex-shrink: 0;
+    overflow: hidden;
+  }
+
+  .marquee-banner__icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+  }
+
+  .marquee-banner__text {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--marquee-color, #1A1A1A);
+  }
+
+  @keyframes marquee-scroll {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-50%);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .marquee-banner__track {
+      animation: none;
+    }
+  }
+
+  @media (max-width: 749px) {
+    .marquee-banner__group {
+      gap: calc(var(--marquee-gap, 48px) * 0.6);
+      padding-right: calc(var(--marquee-gap, 48px) * 0.6);
+    }
+    .marquee-banner__item {
+      padding: 10px 0;
+    }
+    .marquee-banner__text {
+      font-size: 13px;
+    }
+  }
+</style>
+
+{%- style -%}
+  #shopify-section-{{ section.id }} {
+    padding-top: {{ section.settings.padding_top }}px;
+    padding-bottom: {{ section.settings.padding_bottom }}px;
+  }
+{%- endstyle -%}
+
+{%- liquid
+  assign bg_color = section.settings.bg_color
+  assign text_color = section.settings.text_color
+  assign speed = section.settings.speed
+  assign icon_size = section.settings.icon_size
+  assign gap = section.settings.gap
+
+  assign hide_classes = ''
+  unless section.settings.show_mobile
+    assign hide_classes = hide_classes | append: ' small-hide'
+  endunless
+  unless section.settings.show_tablet
+    assign hide_classes = hide_classes | append: ' medium-hide'
+  endunless
+  unless section.settings.show_desktop
+    assign hide_classes = hide_classes | append: ' large-up-hide'
+  endunless
+-%}
+
+<div
+  class="marquee-banner{{ hide_classes }}"
+  style="
+    --marquee-bg: {{ bg_color }};
+    --marquee-color: {{ text_color }};
+    --marquee-duration: {{ speed }}s;
+    --marquee-icon-size: {{ icon_size }}px;
+    --marquee-gap: {{ gap }}px;
+  "
+>
+  <div class="marquee-banner__track">
+    {%- comment -%} Render the row twice so the loop is seamless {%- endcomment -%}
+    {%- for i in (1..2) -%}
+      <div class="marquee-banner__group" {% if i == 2 %}aria-hidden="true"{% endif %}>
+        {%- for block in section.blocks -%}
+          {%- if block.type == 'item' -%}
+            <div class="marquee-banner__item" {{ block.shopify_attributes }}>
+              {%- if block.settings.image != blank -%}
+                <span class="marquee-banner__icon">
+                  {{ block.settings.image | image_url: width: 100 | image_tag: loading: 'lazy', alt: block.settings.text }}
+                </span>
+              {%- endif -%}
+              {%- if block.settings.text != blank -%}
+                <span class="marquee-banner__text">{{ block.settings.text }}</span>
+              {%- endif -%}
+            </div>
+          {%- endif -%}
+        {%- endfor -%}
+      </div>
+    {%- endfor -%}
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Marquee Banner",
+  "tag": "section",
+  "class": "section-marquee-banner",
+  "settings": [
+    {
+      "type": "color",
+      "id": "bg_color",
+      "label": "Background color",
+      "default": "#FFD23F"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text color",
+      "default": "#1A1A1A"
+    },
+    {
+      "type": "range",
+      "id": "speed",
+      "label": "Scroll speed (seconds per loop)",
+      "min": 5,
+      "max": 60,
+      "step": 1,
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "icon_size",
+      "label": "Icon size",
+      "min": 16,
+      "max": 60,
+      "step": 2,
+      "unit": "px",
+      "default": 32
+    },
+    {
+      "type": "range",
+      "id": "gap",
+      "label": "Spacing between items",
+      "min": 8,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "default": 48
+    },
+    {
+      "type": "header",
+      "content": "Section padding"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Padding top",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Padding bottom",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "header",
+      "content": "Visibility"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_mobile",
+      "label": "Show on mobile",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_tablet",
+      "label": "Show on tablet",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_desktop",
+      "label": "Show on desktop",
+      "default": true
+    }
+  ],
+  "blocks": [
+    {
+      "type": "item",
+      "name": "Item",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Icon / PNG image"
+        },
+        {
+          "type": "text",
+          "id": "text",
+          "label": "Text",
+          "default": "Pan-India delivery"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Marquee Banner",
+      "blocks": [
+        { "type": "item", "settings": { "text": "Pan-India delivery" } },
+        { "type": "item", "settings": { "text": "14-day guarantee" } },
+        { "type": "item", "settings": { "text": "Free care support" } }
+      ]
+    }
+  ]
+}
+{% endschema %}

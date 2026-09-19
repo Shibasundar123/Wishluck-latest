@@ -1,0 +1,619 @@
+{% comment %}
+  Gifting Occasions — heading + subheading with a row of occasion cards
+  (icon, title, short text, optional link). Fully responsive:
+  - Desktop: N columns (setting)
+  - Tablet: 2 columns
+  - Mobile: 2-column grid, single column, or horizontal swipe (setting)
+{% endcomment %}
+
+{% liquid
+  if section.settings.background_color != blank
+    render 'contrast-override', background_color: section.settings.background_color, section_id: section.id
+  endif
+
+  assign columns = section.settings.columns_desktop
+  assign mobile_layout = section.settings.mobile_layout
+%}
+
+<div
+  class="section-background{% if section.settings.background_color != blank %} color-custom-{{ section.id }}{% endif %}"
+></div>
+<div
+  class="section section--{{ section.settings.section_width }} spacing-style gifting-occasions{% if section.settings.background_color != blank %} color-custom-{{ section.id }}{% endif %}"
+  style="
+    {% render 'spacing-style', settings: section.settings %}
+    --go-columns: {{ columns }};
+    --go-card-radius: {{ section.settings.card_radius }}px;
+    --go-icon-size-base: {{ section.settings.icon_size }}px;
+    {% if section.settings.card_background != blank %}--go-card-background: {{ section.settings.card_background }};{% endif %}
+    {% unless section.settings.card_border %}--go-card-border-width: 0px;{% endunless %}
+  "
+  data-testid="gifting-occasions-{{ section.id }}"
+>
+  <div class="gifting-occasions__inner gifting-occasions--header-{{ section.settings.alignment }} gifting-occasions--cards-{{ section.settings.card_alignment }} gifting-occasions--icon-{{ section.settings.icon_style }}">
+    {% if section.settings.heading != blank or section.settings.subheading != blank %}
+      <div class="gifting-occasions__header">
+        {% if section.settings.heading != blank %}
+          <h2 class="gifting-occasions__heading h2">{{ section.settings.heading }}</h2>
+        {% endif %}
+        {% if section.settings.subheading != blank %}
+          <p class="gifting-occasions__subheading">{{ section.settings.subheading }}</p>
+        {% endif %}
+      </div>
+    {% endif %}
+
+    {% if section.blocks.size > 0 %}
+      <ul
+        class="gifting-occasions__grid gifting-occasions__grid--mobile-{{ mobile_layout }}"
+        role="list"
+      >
+        {% for block in section.blocks %}
+          {% liquid
+            assign has_link = false
+            if block.settings.link != blank
+              assign has_link = true
+            endif
+          %}
+          <li
+            class="gifting-occasions__item"
+            {{ block.shopify_attributes }}
+          >
+            {% if has_link %}
+              <a
+                href="{{ block.settings.link }}"
+                class="gifting-occasions__card gifting-occasions__card--link"
+              >
+            {% else %}
+              <div class="gifting-occasions__card">
+            {% endif %}
+
+            {% if block.settings.custom_icon != blank or block.settings.icon != 'none' %}
+              <span
+                class="gifting-occasions__icon"
+                style="--go-icon-color: {{ block.settings.icon_color }};"
+                aria-hidden="true"
+              >
+                {% if block.settings.custom_icon != blank %}
+                  {{
+                    block.settings.custom_icon
+                    | image_url: width: 200
+                    | image_tag: loading: 'lazy', widths: '80, 120, 160, 200', alt: ''
+                  }}
+                {% else %}
+                  <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="currentColor" focusable="false">
+                    {% case block.settings.icon %}
+                      {% when 'gift' %}
+                        <path d="M20 7h-2.2A3.5 3.5 0 0 0 12 3.3 3.5 3.5 0 0 0 6.2 7H4a1 1 0 0 0-1 1v3a1 1 0 0 0 1 1h7V7h2v5h7a1 1 0 0 0 1-1V8a1 1 0 0 0-1-1Zm-9.5 0H9a1.5 1.5 0 1 1 1.5-1.5V7Zm3 0V5.5A1.5 1.5 0 1 1 15 7h-1.5Z"/>
+                        <path d="M4 14v6a1 1 0 0 0 1 1h6v-7H4Zm9 7h6a1 1 0 0 0 1-1v-6h-7v7Z"/>
+                      {% when 'burst' %}
+                        <circle cx="12" cy="12" r="5.5"/>
+                        <circle cx="12" cy="5" r="3"/>
+                        <circle cx="12" cy="19" r="3"/>
+                        <circle cx="5" cy="12" r="3"/>
+                        <circle cx="19" cy="12" r="3"/>
+                        <circle cx="7.05" cy="7.05" r="3"/>
+                        <circle cx="16.95" cy="7.05" r="3"/>
+                        <circle cx="7.05" cy="16.95" r="3"/>
+                        <circle cx="16.95" cy="16.95" r="3"/>
+                      {% when 'heart' %}
+                        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                      {% when 'medal' %}
+                        <circle cx="12" cy="9" r="6.5"/>
+                        <path d="M7.5 14.2 5.8 21.5l3.9-1.5 2.3 2.5 2.3-2.5 3.9 1.5-1.7-7.3a7.5 7.5 0 0 1-10.7 0Z"/>
+                      {% when 'star' %}
+                        <path d="M12 2.5l2.95 6.27 6.85.85-5.05 4.75 1.3 6.83L12 17.85 5.95 21.2l1.3-6.83L2.2 9.62l6.85-.85L12 2.5z"/>
+                      {% when 'cake' %}
+                        <path d="M12 1.5c-1 1.3-2 2.4-2 3.7a2 2 0 0 0 4 0c0-1.3-1-2.4-2-3.7z"/>
+                        <rect x="11" y="7" width="2" height="3"/>
+                        <path d="M4 12a3 3 0 0 1 3-3h10a3 3 0 0 1 3 3v2H4v-2z"/>
+                        <rect x="3" y="15" width="18" height="6.5" rx="1.5"/>
+                      {% when 'balloon' %}
+                        <path d="M12 2a6.5 6.5 0 0 0-6.5 7c0 3.6 2.9 7 5.6 8.2l-.6 1.3h3l-.6-1.3C15.6 16 18.5 12.6 18.5 9A6.5 6.5 0 0 0 12 2z"/>
+                        <path d="M12.3 18.5c-.5 1.2-.2 2 .5 2.6.4.4.5.9.2 1.4h-1.2c.2-.4.1-.7-.2-1-.9-.8-1.2-1.8-.5-3h1.2z"/>
+                      {% when 'popper' %}
+                        <path d="M3 21 8.5 7.5 16.5 15.5 3 21z"/>
+                        <circle cx="18" cy="5" r="1.5"/>
+                        <circle cx="20.5" cy="10" r="1.2"/>
+                        <circle cx="13" cy="4" r="1.2"/>
+                        <path d="M15 9.5c1.5-2 3.5-2.5 6-2l-.4 1.5c-2-.4-3.4 0-4.5 1.5L15 9.5z"/>
+                        <path d="M11.5 5.5c-.3-1.8.3-3.2 1.7-4.4l1 1.1c-1 .9-1.4 1.8-1.2 3.1l-1.5.2z"/>
+                      {% when 'graduation' %}
+                        <path d="M12 3 1 8.5l11 5.5 9-4.5V16h2V8.5L12 3z"/>
+                        <path d="M5 12.6v4.2c0 1.8 3.2 3.2 7 3.2s7-1.4 7-3.2v-4.2l-7 3.5-7-3.5z"/>
+                      {% when 'sun' %}
+                        <circle cx="12" cy="12" r="5"/>
+                        <path d="M12 1.5v3M12 19.5v3M1.5 12h3M19.5 12h3M4.6 4.6l2.1 2.1M17.3 17.3l2.1 2.1M4.6 19.4l2.1-2.1M17.3 6.7l2.1-2.1" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+                      {% when 'sparkles' %}
+                        <path d="M10 2l1.8 5.2L17 9l-5.2 1.8L10 16l-1.8-5.2L3 9l5.2-1.8L10 2z"/>
+                        <path d="M18 13l1 2.8 2.8 1-2.8 1L18 20.6l-1-2.8-2.8-1 2.8-1 1-2.8z"/>
+                    {% endcase %}
+                  </svg>
+                {% endif %}
+              </span>
+            {% endif %}
+
+            <div class="gifting-occasions__body">
+              {% if block.settings.title != blank %}
+                <h3 class="gifting-occasions__title h5">{{ block.settings.title | escape }}</h3>
+              {% endif %}
+              {% if block.settings.text != blank %}
+                <p class="gifting-occasions__text">{{ block.settings.text | escape }}</p>
+              {% endif %}
+            </div>
+
+            {% if has_link %}
+              </a>
+            {% else %}
+              </div>
+            {% endif %}
+          </li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+  </div>
+</div>
+
+{% stylesheet %}
+  .gifting-occasions {
+    --go-icon-size: var(--go-icon-size-base, 40px);
+    --go-card-border-width: 1px;
+    --go-card-padding: clamp(1.25rem, 2.5vw, 2.75rem);
+    --go-gap: clamp(0.75rem, 2vw, 2rem);
+  }
+
+  .gifting-occasions__inner {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(1.5rem, 3vw, 2.5rem);
+    min-width: 0;
+  }
+
+  /* Header */
+  .gifting-occasions__header {
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap-sm);
+    max-width: 60ch;
+  }
+
+  .gifting-occasions--header-center .gifting-occasions__header {
+    align-self: center;
+    text-align: center;
+  }
+
+  .gifting-occasions__heading {
+    margin: 0;
+  }
+
+  .gifting-occasions__subheading {
+    margin: 0;
+    opacity: 0.8;
+  }
+
+  /* Grid */
+  .gifting-occasions__grid {
+    display: grid;
+    grid-template-columns: repeat(var(--go-columns), minmax(0, 1fr));
+    gap: var(--go-gap);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .gifting-occasions__item {
+    min-width: 0;
+  }
+
+  /* Card */
+  .gifting-occasions__card {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    box-sizing: border-box;
+    padding: var(--go-card-padding);
+    border: var(--go-card-border-width) solid rgb(var(--color-foreground-rgb) / 0.12);
+    border-radius: var(--go-card-radius);
+    background: var(--go-card-background, transparent);
+    color: inherit;
+    text-decoration: none;
+    transition:
+      transform 0.25s ease,
+      border-color 0.25s ease,
+      box-shadow 0.25s ease;
+  }
+
+  .gifting-occasions__card--link:hover,
+  .gifting-occasions__card--link:focus-visible {
+    transform: translateY(-3px);
+    border-color: rgb(var(--color-foreground-rgb) / 0.3);
+    box-shadow: 0 10px 28px rgb(var(--color-foreground-rgb) / 0.08);
+  }
+
+  .gifting-occasions__card--link:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 3px;
+  }
+
+  .gifting-occasions--cards-center .gifting-occasions__card {
+    align-items: center;
+    text-align: center;
+  }
+
+  /* Icon */
+  .gifting-occasions__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: var(--go-icon-size);
+    height: var(--go-icon-size);
+    margin-bottom: clamp(1rem, 2.5vw, 2rem);
+    color: var(--go-icon-color, currentColor);
+  }
+
+  .gifting-occasions__icon svg,
+  .gifting-occasions__icon img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  .gifting-occasions--icon-circle .gifting-occasions__icon {
+    box-sizing: content-box;
+    padding: calc(var(--go-icon-size) * 0.35);
+    border-radius: 50%;
+    background: color-mix(in srgb, var(--go-icon-color, currentColor) 16%, transparent);
+  }
+
+  /* Text */
+  .gifting-occasions__title {
+    margin: 0 0 0.4em;
+  }
+
+  .gifting-occasions__text {
+    margin: 0;
+    opacity: 0.85;
+  }
+
+  /* Tablet: always 2 columns */
+  @media screen and (min-width: 750px) and (max-width: 989px) {
+    .gifting-occasions__grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  /* Mobile */
+  @media screen and (max-width: 749px) {
+    .gifting-occasions {
+      --go-card-padding: 1.1rem;
+      --go-gap: 0.75rem;
+      --go-icon-size: calc(var(--go-icon-size-base, 40px) * 0.85);
+    }
+
+    .gifting-occasions__icon {
+      margin-bottom: 0.9rem;
+    }
+
+    .gifting-occasions__title {
+      font-size: max(1rem, calc(var(--font-h5--size) * 0.9));
+    }
+
+    .gifting-occasions__text {
+      font-size: 0.92em;
+    }
+
+    /* 2-column grid (default) */
+    .gifting-occasions__grid--mobile-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    /* Single column */
+    .gifting-occasions__grid--mobile-stack {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .gifting-occasions__grid--mobile-stack .gifting-occasions__card {
+      flex-direction: row;
+      align-items: flex-start;
+      gap: 1rem;
+    }
+
+    .gifting-occasions__grid--mobile-stack .gifting-occasions__icon {
+      margin-bottom: 0;
+    }
+
+    .gifting-occasions__grid--mobile-stack .gifting-occasions__body {
+      min-width: 0;
+    }
+
+    /* Horizontal swipe */
+    .gifting-occasions__grid--mobile-scroll {
+      display: flex;
+      gap: 0.75rem;
+      overflow-x: auto;
+      overscroll-behavior-x: contain;
+      scroll-snap-type: x mandatory;
+      scroll-padding-inline: var(--page-margin);
+      margin-inline: calc(-1 * var(--page-margin));
+      padding-inline: var(--page-margin);
+      padding-bottom: 0.25rem;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+
+    .gifting-occasions__grid--mobile-scroll::-webkit-scrollbar {
+      display: none;
+    }
+
+    .gifting-occasions__grid--mobile-scroll .gifting-occasions__item {
+      flex: 0 0 min(70vw, 300px);
+      scroll-snap-align: start;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .gifting-occasions__card {
+      transition: none;
+    }
+
+    .gifting-occasions__card--link:hover {
+      transform: none;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Gifting occasions",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "max_blocks": 8,
+  "settings": [
+    {
+      "type": "inline_richtext",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Gifting Made Easy"
+    },
+    {
+      "type": "inline_richtext",
+      "id": "subheading",
+      "label": "Subheading",
+      "default": "Not sure what to gift? Pick an occasion and we'll do the rest."
+    },
+    {
+      "type": "select",
+      "id": "alignment",
+      "label": "Heading alignment",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "center", "label": "Center" }
+      ],
+      "default": "left"
+    },
+    {
+      "type": "header",
+      "content": "Cards"
+    },
+    {
+      "type": "range",
+      "id": "columns_desktop",
+      "label": "Columns on desktop",
+      "min": 2,
+      "max": 5,
+      "step": 1,
+      "default": 4
+    },
+    {
+      "type": "select",
+      "id": "mobile_layout",
+      "label": "Mobile layout",
+      "options": [
+        { "value": "grid", "label": "2 columns" },
+        { "value": "stack", "label": "1 column (icon beside text)" },
+        { "value": "scroll", "label": "Horizontal swipe" }
+      ],
+      "default": "grid"
+    },
+    {
+      "type": "select",
+      "id": "card_alignment",
+      "label": "Card content alignment",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "center", "label": "Center" }
+      ],
+      "default": "left"
+    },
+    {
+      "type": "select",
+      "id": "icon_style",
+      "label": "Icon style",
+      "options": [
+        { "value": "plain", "label": "Plain" },
+        { "value": "circle", "label": "On tinted circle" }
+      ],
+      "default": "plain"
+    },
+    {
+      "type": "range",
+      "id": "icon_size",
+      "label": "Icon size",
+      "min": 24,
+      "max": 64,
+      "step": 2,
+      "unit": "px",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "card_radius",
+      "label": "Card corner radius",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "default": 20
+    },
+    {
+      "type": "checkbox",
+      "id": "card_border",
+      "label": "Show card border",
+      "default": true
+    },
+    {
+      "type": "color",
+      "id": "card_background",
+      "label": "Card background",
+      "info": "Leave empty for transparent."
+    },
+    {
+      "type": "header",
+      "content": "Section"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background color",
+      "placeholder": "Default"
+    },
+    {
+      "type": "select",
+      "id": "section_width",
+      "label": "Width",
+      "options": [
+        { "value": "page-width", "label": "Page" },
+        { "value": "full-width", "label": "Full" }
+      ],
+      "default": "page-width"
+    },
+    {
+      "type": "header",
+      "content": "Padding"
+    },
+    {
+      "type": "range",
+      "id": "padding-block-start",
+      "label": "Top",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 48
+    },
+    {
+      "type": "range",
+      "id": "padding-block-end",
+      "label": "Bottom",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 48
+    }
+  ],
+  "blocks": [
+    {
+      "type": "occasion",
+      "name": "Occasion",
+      "settings": [
+        {
+          "type": "select",
+          "id": "icon",
+          "label": "Icon",
+          "options": [
+            { "value": "gift", "label": "Gift" },
+            { "value": "burst", "label": "Burst / flower" },
+            { "value": "heart", "label": "Heart" },
+            { "value": "medal", "label": "Medal" },
+            { "value": "star", "label": "Star" },
+            { "value": "cake", "label": "Cake" },
+            { "value": "balloon", "label": "Balloon" },
+            { "value": "popper", "label": "Party popper" },
+            { "value": "graduation", "label": "Graduation cap" },
+            { "value": "sun", "label": "Sun" },
+            { "value": "sparkles", "label": "Sparkles" },
+            { "value": "none", "label": "None" }
+          ],
+          "default": "gift"
+        },
+        {
+          "type": "color",
+          "id": "icon_color",
+          "label": "Icon color",
+          "default": "#E0A43C"
+        },
+        {
+          "type": "image_picker",
+          "id": "custom_icon",
+          "label": "Custom icon image",
+          "info": "Overrides the icon above. Use a square PNG/SVG."
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Title",
+          "default": "Birthday Gifts"
+        },
+        {
+          "type": "textarea",
+          "id": "text",
+          "label": "Description",
+          "default": "Toys kids remember long after the party."
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "Link"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Gifting occasions",
+      "category": "t:categories.links",
+      "blocks": [
+        {
+          "type": "occasion",
+          "settings": {
+            "icon": "gift",
+            "icon_color": "#E0A43C",
+            "title": "Birthday Gifts",
+            "text": "Toys kids remember long after the party."
+          }
+        },
+        {
+          "type": "occasion",
+          "settings": {
+            "icon": "burst",
+            "icon_color": "#8B7BE8",
+            "title": "Festival Specials",
+            "text": "Diwali & Rakhi gifting, sorted."
+          }
+        },
+        {
+          "type": "occasion",
+          "settings": {
+            "icon": "heart",
+            "icon_color": "#D49AC8",
+            "title": "New Baby",
+            "text": "Gentle first toys for newborns."
+          }
+        },
+        {
+          "type": "occasion",
+          "settings": {
+            "icon": "medal",
+            "icon_color": "#8FBF7A",
+            "title": "School Rewards",
+            "text": "Celebrate report cards the right way."
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

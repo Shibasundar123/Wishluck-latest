@@ -1,0 +1,519 @@
+{%- comment -%}
+  Shop by Age — a lightweight grid of age-group cards linking to collections.
+
+  Performance notes:
+  - Zero JavaScript. Layout, hover and the mobile carousel are pure CSS.
+  - Styles live in {% stylesheet %} so Shopify bundles them into the theme's single CSS file (no extra request).
+  - Images use responsive srcset/sizes, native lazy-loading, async decoding and explicit
+    width/height from image_tag, plus a CSS aspect-ratio box, so nothing shifts while loading.
+  - Missing images fall back to a CSS striped placeholder — no placeholder image request.
+  - Text contrast is resolved in Liquid at render time; nothing is computed in the browser.
+{%- endcomment -%}
+
+{% liquid
+  assign columns = section.settings.columns
+  assign mobile_layout = section.settings.mobile_layout
+
+  case section.settings.image_ratio
+    when 'square'
+      assign ratio = '1 / 1'
+    when 'portrait'
+      assign ratio = '4 / 5'
+    else
+      assign ratio = '4 / 3'
+  endcase
+
+  # sizes attribute: desktop share of viewport per column, tablet 2-up, mobile per layout
+  assign desktop_vw = 100 | divided_by: columns
+  case mobile_layout
+    when 'grid-1'
+      assign mobile_vw = 100
+    when 'scroll'
+      assign mobile_vw = 72
+    else
+      assign mobile_vw = 50
+  endcase
+  assign sizes = '(min-width: 990px) ' | append: desktop_vw | append: 'vw, (min-width: 750px) 50vw, ' | append: mobile_vw | append: 'vw'
+
+  if section.settings.background_color != blank
+    render 'contrast-override', background_color: section.settings.background_color, section_id: section.id
+  endif
+%}
+
+<div
+  class="section-background{% if section.settings.background_color != blank %} color-custom-{{ section.id }}{% endif %}"
+></div>
+
+<div
+  class="section section--{{ section.settings.section_width }}{% if section.settings.background_color != blank %} color-custom-{{ section.id }}{% endif %} spacing-style"
+  style="{% render 'spacing-style', settings: section.settings %}"
+  data-testid="shop-by-age-{{ section.id }}"
+>
+  <div
+    class="shop-by-age shop-by-age--mobile-{{ mobile_layout }}"
+    style="
+      --sba-columns: {{ columns }};
+      --sba-gap: {{ section.settings.gap }}px;
+      --sba-radius: {{ section.settings.corner_radius }}px;
+      --sba-ratio: {{ ratio }};
+    "
+  >
+    {% if section.settings.heading != blank or section.settings.subheading != blank %}
+      <div class="shop-by-age__header shop-by-age__header--{{ section.settings.heading_alignment }}">
+        {% if section.settings.heading != blank %}
+          <h2 class="shop-by-age__heading h2">{{ section.settings.heading | escape }}</h2>
+        {% endif %}
+        {% if section.settings.subheading != blank %}
+          <p class="shop-by-age__subheading paragraph">{{ section.settings.subheading | escape }}</p>
+        {% endif %}
+      </div>
+    {% endif %}
+
+    <ul class="shop-by-age__grid list-unstyled" role="list">
+      {% for block in section.blocks %}
+        {% liquid
+          assign bs = block.settings
+          assign card_bg = bs.card_color
+
+          # Resolve a readable text colour once, server-side (mirrors contrast-override logic).
+          if bs.text_color != blank
+            assign card_fg = bs.text_color
+          elsif card_bg != blank
+            assign contrast = card_bg | color_contrast: settings.page_text_color
+            assign brightness = card_bg | color_brightness
+            if contrast >= 4.5
+              assign card_fg = settings.page_text_color
+            elsif brightness > 128
+              assign card_fg = 'var(--palette-darkest)'
+            else
+              assign card_fg = 'var(--palette-lightest)'
+            endif
+          else
+            assign card_fg = 'var(--color-foreground)'
+          endif
+
+          if bs.link != blank
+            assign tag = 'a'
+          else
+            assign tag = 'div'
+          endif
+
+          # Only the first row is eligible for eager loading, and only when the merchant opts in.
+          assign loading = 'lazy'
+          if section.settings.eager_first_row and forloop.index <= columns
+            assign loading = 'eager'
+          endif
+        %}
+        <li class="shop-by-age__item" {{ block.shopify_attributes }}>
+          <{{ tag }}
+            class="shop-by-age__card"
+            {% if tag == 'a' %}
+              href="{{ bs.link }}"
+            {% endif %}
+            style="{% if card_bg != blank %}--card-bg: {{ card_bg }};{% endif %} --card-fg: {{ card_fg }};"
+          >
+            {% if bs.image != blank %}
+              <div class="shop-by-age__media">
+                {{
+                  bs.image
+                  | image_url: width: 1200
+                  | image_tag:
+                    widths: '300, 400, 500, 600, 800, 1000, 1200',
+                    sizes: sizes,
+                    loading: loading,
+                    decoding: 'async',
+                    class: 'shop-by-age__img'
+                }}
+              </div>
+            {% else %}
+              <div class="shop-by-age__media shop-by-age__media--placeholder" aria-hidden="true"></div>
+            {% endif %}
+
+            <div class="shop-by-age__body">
+              {% if bs.title != blank %}
+                <h3 class="shop-by-age__title h4">{{ bs.title | escape }}</h3>
+              {% endif %}
+              {% if bs.description != blank %}
+                <p class="shop-by-age__text paragraph">{{ bs.description | escape }}</p>
+              {% endif %}
+            </div>
+          </{{ tag }}>
+        </li>
+      {% endfor %}
+    </ul>
+  </div>
+</div>
+
+{% stylesheet %}
+  .shop-by-age {
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap-2xl);
+  }
+
+  .shop-by-age__header {
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap-xs);
+  }
+
+  .shop-by-age__header--center {
+    text-align: center;
+    align-items: center;
+  }
+
+  .shop-by-age__heading,
+  .shop-by-age__subheading {
+    margin: 0;
+  }
+
+  .shop-by-age__subheading {
+    color: var(--color-foreground-muted);
+    max-width: 60ch;
+  }
+
+  .shop-by-age__grid {
+    display: grid;
+    grid-template-columns: repeat(var(--sba-columns), minmax(0, 1fr));
+    gap: var(--sba-gap);
+    margin: 0;
+    padding: 0;
+  }
+
+  .shop-by-age__item {
+    min-width: 0;
+  }
+
+  .shop-by-age__card {
+    --card-bg: rgb(var(--color-foreground-rgb) / 0.06);
+
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    color: var(--card-fg);
+    background-color: var(--card-bg);
+    border-radius: var(--sba-radius);
+    overflow: hidden;
+    text-decoration: none;
+    /* Isolates the rounded clip so the hover transform doesn't repaint the page */
+    isolation: isolate;
+  }
+
+  a.shop-by-age__card:focus-visible {
+    outline: 2px solid var(--card-fg);
+    outline-offset: 3px;
+  }
+
+  .shop-by-age__media {
+    aspect-ratio: var(--sba-ratio);
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+
+  .shop-by-age__media--placeholder {
+    --stripe: 1.25rem;
+
+    background-color: rgb(255 255 255 / 0.45);
+    background-image: repeating-linear-gradient(
+      -45deg,
+      var(--card-bg) 0 var(--stripe),
+      transparent var(--stripe) calc(var(--stripe) * 2)
+    );
+  }
+
+  .shop-by-age__img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .shop-by-age__body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap-xs);
+    padding: clamp(1rem, 9%, 2.5rem);
+  }
+
+  .shop-by-age__title,
+  .shop-by-age__text {
+    margin: 0;
+    color: inherit;
+  }
+
+  .shop-by-age__text {
+    color: color-mix(in srgb, var(--card-fg) 72%, transparent);
+  }
+
+  /* Hover: transform-only, pointer devices only, honours reduced-motion */
+  @media (hover: hover) and (prefers-reduced-motion: no-preference) {
+    .shop-by-age__img {
+      transition: transform var(--animation-speed-slow) var(--ease-out-cubic);
+    }
+
+    a.shop-by-age__card:hover .shop-by-age__img {
+      transform: scale(1.04);
+    }
+  }
+
+  @media screen and (max-width: 989px) {
+    .shop-by-age__grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media screen and (max-width: 749px) {
+    .shop-by-age--mobile-grid-1 .shop-by-age__grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .shop-by-age--mobile-grid-2 .shop-by-age__grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    /* Horizontal snap carousel, bleeding to the viewport edges — no JS needed */
+    .shop-by-age--mobile-scroll .shop-by-age__grid {
+      display: flex;
+      overflow-x: auto;
+      overscroll-behavior-x: contain;
+      scroll-snap-type: x mandatory;
+      scrollbar-width: none;
+      margin-inline: calc(-1 * var(--page-margin));
+      padding-inline: var(--page-margin);
+      scroll-padding-inline: var(--page-margin);
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .shop-by-age--mobile-scroll .shop-by-age__grid::-webkit-scrollbar {
+      display: none;
+    }
+
+    .shop-by-age--mobile-scroll .shop-by-age__item {
+      flex: 0 0 min(72vw, 20rem);
+      scroll-snap-align: start;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Shop by age",
+  "tag": "section",
+  "max_blocks": 8,
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Shop by Age"
+    },
+    {
+      "type": "text",
+      "id": "subheading",
+      "label": "Subheading"
+    },
+    {
+      "type": "select",
+      "id": "heading_alignment",
+      "label": "Heading alignment",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "center", "label": "Center" }
+      ],
+      "default": "left"
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "range",
+      "id": "columns",
+      "label": "Columns on desktop",
+      "min": 2,
+      "max": 6,
+      "step": 1,
+      "default": 4
+    },
+    {
+      "type": "select",
+      "id": "mobile_layout",
+      "label": "Mobile layout",
+      "options": [
+        { "value": "grid-2", "label": "2 columns" },
+        { "value": "grid-1", "label": "1 column" },
+        { "value": "scroll", "label": "Horizontal scroll" }
+      ],
+      "default": "grid-2"
+    },
+    {
+      "type": "select",
+      "id": "image_ratio",
+      "label": "Image ratio",
+      "options": [
+        { "value": "landscape", "label": "Landscape (4:3)" },
+        { "value": "square", "label": "Square (1:1)" },
+        { "value": "portrait", "label": "Portrait (4:5)" }
+      ],
+      "default": "landscape"
+    },
+    {
+      "type": "range",
+      "id": "corner_radius",
+      "label": "Card corner radius",
+      "min": 0,
+      "max": 48,
+      "step": 2,
+      "unit": "px",
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "gap",
+      "label": "Gap between cards",
+      "min": 8,
+      "max": 48,
+      "step": 4,
+      "unit": "px",
+      "default": 24
+    },
+    {
+      "type": "select",
+      "id": "section_width",
+      "label": "Section width",
+      "options": [
+        { "value": "page-width", "label": "Page" },
+        { "value": "full-width", "label": "Full" }
+      ],
+      "default": "page-width"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Section background",
+      "placeholder": "Default"
+    },
+    {
+      "type": "header",
+      "content": "Performance"
+    },
+    {
+      "type": "checkbox",
+      "id": "eager_first_row",
+      "label": "Load first row images immediately",
+      "info": "Turn on only if this section is visible at the top of the page. Otherwise images lazy-load as the visitor scrolls.",
+      "default": false
+    },
+    {
+      "type": "header",
+      "content": "Padding"
+    },
+    {
+      "type": "range",
+      "id": "padding-block-start",
+      "label": "Top",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 48
+    },
+    {
+      "type": "range",
+      "id": "padding-block-end",
+      "label": "Bottom",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 48
+    }
+  ],
+  "blocks": [
+    {
+      "type": "age_card",
+      "name": "Age card",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image",
+          "info": "Recommended: 800 × 600 px (4:3). Larger images are resized automatically."
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Title",
+          "default": "0–2 Years"
+        },
+        {
+          "type": "text",
+          "id": "description",
+          "label": "Description",
+          "default": "Sensory play & first learning"
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "Link"
+        },
+        {
+          "type": "color",
+          "id": "card_color",
+          "label": "Card color",
+          "default": "#EEDBB8"
+        },
+        {
+          "type": "color",
+          "id": "text_color",
+          "label": "Text color",
+          "info": "Leave empty to pick a readable color automatically."
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Shop by age",
+      "category": "Collections",
+      "blocks": [
+        {
+          "type": "age_card",
+          "settings": {
+            "title": "0–2 Years",
+            "description": "Sensory play & first learning",
+            "card_color": "#EEDBB8"
+          }
+        },
+        {
+          "type": "age_card",
+          "settings": {
+            "title": "3–5 Years",
+            "description": "Curiosity & motor skills",
+            "card_color": "#DDD5F8"
+          }
+        },
+        {
+          "type": "age_card",
+          "settings": {
+            "title": "6–8 Years",
+            "description": "Logic & creativity",
+            "card_color": "#F1D4E2"
+          }
+        },
+        {
+          "type": "age_card",
+          "settings": {
+            "title": "9+ Years",
+            "description": "STEM & strategy",
+            "card_color": "#D3E9CF"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

@@ -9,10 +9,11 @@
  */
 {
   "current": {
-    "logo_height": 36,
-    "logo_height_mobile": 28,
-    "page_background_color": "{{ settings.color_palette.background }}",
-    "page_width": "narrow",
+    "logo": "shopify://shop_images/123456_1.png",
+    "logo_inverse": "shopify://shop_images/123456_1.png",
+    "logo_height": 52,
+    "logo_height_mobile": 38,
+    "favicon": "shopify://shop_images/123456_1.png",
     "page_text_color": "{{ settings.color_palette.foreground }}",
     "type_body_font": "inter_n4",
     "type_subheading_font": "inter_n5",
@@ -44,8 +45,10 @@
     "type_font_h6": "subheading",
     "type_size_h6": "12",
     "type_line_height_h6": "display-loose",
-    "page_transition_enabled": false,
-    "transition_to_main_product": false,
+    "page_background_color": "{{ settings.color_palette.background }}",
+    "page_width": "narrow",
+    "page_transition_enabled": true,
+    "transition_to_main_product": true,
     "card_hover_effect": "none",
     "badge_position": "top-right",
     "badge_corner_radius": 100,
@@ -102,6 +105,7 @@
     "variant_button_border_width": 1,
     "variant_button_radius": 14,
     "variant_button_width": "equal-width-buttons",
+    "content_for_index": [],
     "color_palette": {
       "background": "#ffffff",
       "foreground": "#000000",
