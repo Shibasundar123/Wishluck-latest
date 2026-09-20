@@ -87,7 +87,7 @@
 ></div>
 <div
   class="product-information section section--{{ content_width }} spacing-style{% if settings.background_color != blank %} color-custom-{{ section_id }}{% endif %} relative"
-  style="{% render 'spacing-style', settings: settings %} --gap: {{ settings.gap }}px;"
+  style="{% render 'spacing-style', settings: settings %} --gap: {{ settings.gap }}px; --product-media-column: {{ settings.media_column_width | default: 66.67 }}%;"
   data-testid="product-information"
 >
   {% if settings.desktop_media_position == 'left' and product_has_media and request.page_type == 'product' %}
@@ -180,7 +180,7 @@
     .product-information__grid:not(.product-information--media-none) {
       /* Media on the left side */
       &.product-information--media-left {
-        grid-template-columns: 1fr min(50vw, var(--sidebar-width));
+        grid-template-columns: minmax(0, 1fr) min(50vw, var(--sidebar-width));
 
         .product-information__media {
           padding-right: calc(var(--gap, 0) / 2);
@@ -197,7 +197,7 @@
 
       /* Media on the right side */
       &.product-information--media-right {
-        grid-template-columns: min(50vw, var(--sidebar-width)) 1fr;
+        grid-template-columns: min(50vw, var(--sidebar-width)) minmax(0, 1fr);
 
         .product-information__media {
           padding-left: calc(var(--gap, 0) / 2);
@@ -293,20 +293,21 @@
     }
   }
 
-  /* Wider sidebar for large screens */
-  @media screen and (min-width: 1200px) {
+  /* Large screens: media / details split from the section's "Media column width" setting.
+     minmax(0, …) keeps wide content (e.g. a card carousel) from stretching the details column. */
+  @media screen and (min-width: 990px) {
     .product-information__grid:not(
         .product-information__grid--half,
         .product-information--media-none
       ).product-information--media-left {
-      grid-template-columns: 2fr 1fr;
+      grid-template-columns: minmax(0, var(--product-media-column, 66.67%)) minmax(0, 1fr);
     }
 
     .product-information__grid:not(
         .product-information__grid--half,
         .product-information--media-none
       ).product-information--media-right {
-      grid-template-columns: 1fr 2fr;
+      grid-template-columns: minmax(0, 1fr) minmax(0, var(--product-media-column, 66.67%));
     }
   }
 

@@ -47,10 +47,12 @@
     <div
       class="sticky-add-to-cart__bar color-custom-popover"
       data-stuck="false"
+      data-button-only="{{ section.settings.sticky_button_only }}"
       ref="stickyBar"
       role="region"
       aria-label="{{ 'products.product.sticky_add_to_cart' | t }}"
     >
+      {% unless section.settings.sticky_button_only %}
       {% liquid
         assign image_to_show = current_variant.featured_image | default: product.featured_image
       %}
@@ -120,6 +122,7 @@
       >
         {% render 'price', product_resource: product, show_sale_price_first: true %}
       </div>
+      {% endunless %}
 
       <button
         type="button"
@@ -291,6 +294,16 @@
     position: relative;
   }
 
+  /* Button-only mode: the add-to-cart button fills the whole bar */
+  .sticky-add-to-cart__bar[data-button-only='true'] {
+    width: min(600px, calc(100% - 2 * var(--padding-sm)));
+  }
+
+  .sticky-add-to-cart__bar[data-button-only='true'] .sticky-add-to-cart__button {
+    width: 100%;
+    flex: 1;
+  }
+
   /* Mobile adjustments */
   @media screen and (max-width: 749px) {
     .sticky-add-to-cart__bar {
@@ -339,6 +352,20 @@
     sticky-add-to-cart:not([data-variant-available='true']) .sticky-add-to-cart__button {
       width: auto;
     }
+
+    /* Button-only mode on mobile: keep the label visible and go full width */
+    .sticky-add-to-cart__bar[data-button-only='true'] {
+      width: 100%;
+    }
+
+    .sticky-add-to-cart__bar[data-button-only='true'] .sticky-add-to-cart__button {
+      width: 100%;
+      padding: var(--padding-md) var(--padding-lg);
+    }
+
+    .sticky-add-to-cart__bar[data-button-only='true'] .add-to-cart-text__content {
+      display: initial;
+    }
   }
 
   /* Small mobile - hide text content and compare price */
@@ -368,6 +395,13 @@
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
+    }
+  }
+
+  /* Desktop: sticky add to cart bar stays mobile-only */
+  @media screen and (min-width: 750px) {
+    .sticky-add-to-cart__bar {
+      display: none;
     }
   }
 {% endstylesheet %}
@@ -438,6 +472,18 @@
     },
     {
       "type": "range",
+      "id": "media_column_width",
+      "label": "Media column width",
+      "min": 50,
+      "max": 70,
+      "step": 5,
+      "unit": "%",
+      "default": 60,
+      "info": "Desktop only (990px and up). Product details take the remaining width.",
+      "visible_if": "{{ section.settings.equal_columns == false }}"
+    },
+    {
+      "type": "range",
       "id": "gap",
       "label": "t:settings.gap",
       "min": 0,
@@ -451,6 +497,14 @@
       "id": "enable_sticky_add_to_cart",
       "label": "t:settings.enable_sticky_add_to_cart",
       "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "sticky_button_only",
+      "label": "Sticky bar: show only Add to cart button",
+      "info": "Hides the product image, title and price in the sticky bar.",
+      "default": true,
+      "visible_if": "{{ section.settings.enable_sticky_add_to_cart }}"
     },
     {
       "type": "color",

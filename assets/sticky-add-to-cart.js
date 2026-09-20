@@ -183,21 +183,26 @@ class StickyAddToCartComponent extends Component {
       this.refs.addToCartButton.dataset.added = 'true';
     }
 
-    if (!cartIcon || !this.refs.addToCartButton || !this.refs.productImage) return;
+    if (!this.refs.addToCartButton) return;
     if (this.#resetTimeout) clearTimeout(this.#resetTimeout);
 
-    const flyToCartElement = /** @type {FlyToCart} */ (document.createElement('fly-to-cart'));
-    const sourceStyles = getComputedStyle(this.refs.productImage);
+    const animatedElements = [this.refs.addToCartButton];
 
-    flyToCartElement.classList.add('fly-to-cart--sticky');
-    flyToCartElement.style.setProperty('background-image', `url(${this.refs.productImage.src})`);
-    flyToCartElement.useSourceSize = 'true';
-    flyToCartElement.source = this.refs.productImage;
-    flyToCartElement.destination = cartIcon;
+    // Fly-to-cart animation only when the bar renders a product image (not in button-only mode)
+    if (cartIcon && this.refs.productImage) {
+      const flyToCartElement = /** @type {FlyToCart} */ (document.createElement('fly-to-cart'));
 
-    document.body.appendChild(flyToCartElement);
+      flyToCartElement.classList.add('fly-to-cart--sticky');
+      flyToCartElement.style.setProperty('background-image', `url(${this.refs.productImage.src})`);
+      flyToCartElement.useSourceSize = 'true';
+      flyToCartElement.source = this.refs.productImage;
+      flyToCartElement.destination = cartIcon;
 
-    await onAnimationEnd([this.refs.addToCartButton, flyToCartElement]);
+      document.body.appendChild(flyToCartElement);
+      animatedElements.push(flyToCartElement);
+    }
+
+    await onAnimationEnd(animatedElements);
     this.#resetTimeout = setTimeout(() => {
       this.refs.addToCartButton.removeAttribute('data-added');
     }, 800);

@@ -1,0 +1,334 @@
+{%- doc -%}
+  Trust badges strip for the product page: free shipping, 7-day replacement, pan-India delivery, etc.
+  Up to 3 badges, each with a selectable icon and text. A badge with blank text is hidden.
+{%- enddoc -%}
+
+{%- liquid
+  assign block_settings = block.settings
+  assign badge_indexes = '1,2,3' | split: ','
+-%}
+
+<div
+  class="wl-trust-badges spacing-style"
+  style="
+    {% render 'spacing-padding', settings: block_settings %}
+    --trust-bg: {{ block_settings.background_color | default: '#f7f5f0' }};
+    --trust-text: {{ block_settings.text_color | default: '#1a1a1a' }};
+  "
+  {{ block.shopify_attributes }}
+>
+  <div class="wl-trust-row wl-trust-row--primary">
+    {%- for i in badge_indexes -%}
+      {%- liquid
+        assign text_key = 'badge_' | append: i | append: '_text'
+        assign icon_key = 'badge_' | append: i | append: '_icon'
+        assign svg_key = 'badge_' | append: i | append: '_svg'
+        assign badge_text = block_settings[text_key]
+        assign badge_icon = block_settings[icon_key]
+        assign badge_svg = block_settings[svg_key]
+      -%}
+      {%- if badge_text != blank -%}
+        <div class="wl-trust-badge">
+          {%- if badge_svg != blank -%}
+            <span class="wl-trust-badge__icon wl-trust-badge__icon--custom">
+              {{ badge_svg }}
+            </span>
+          {%- else -%}
+          <span class="wl-trust-badge__icon wl-trust-badge__icon--preset">
+            {%- case badge_icon -%}
+              {%- when 'truck' -%}
+                <svg viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+              {%- when 'shield' -%}
+                <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>
+              {%- when 'location' -%}
+                <svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+              {%- when 'return' -%}
+                <svg viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+              {%- when 'leaf' -%}
+                <svg viewBox="0 0 24 24"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>
+              {%- when 'gift' -%}
+                <svg viewBox="0 0 24 24"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>
+              {%- when 'star' -%}
+                <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              {%- when 'lock' -%}
+                <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              {%- else -%}
+                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="9 12 11 14 15 10"/></svg>
+            {%- endcase -%}
+          </span>
+          {%- endif -%}
+          <span class="wl-trust-badge__title">{{ badge_text }}</span>
+        </div>
+      {%- endif -%}
+    {%- endfor -%}
+  </div>
+</div>
+
+{% stylesheet %}
+  .wl-trust-badges {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .wl-trust-row {
+    display: flex;
+    align-items: center;
+    border-radius: 12px;
+    padding: 10px 16px;
+  }
+
+  .wl-trust-row--primary {
+    background: var(--trust-bg);
+    gap: 20px;
+  }
+
+  .wl-trust-badge {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+  }
+
+  .wl-trust-row--primary .wl-trust-badge {
+    flex: 1;
+  }
+
+  .wl-trust-badge__icon {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: #ffffff;
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.06);
+  }
+
+  .wl-trust-badge__icon svg {
+    width: 17px;
+    height: 17px;
+  }
+
+  .wl-trust-badge__icon--preset svg {
+    stroke: var(--trust-text);
+    fill: none;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .wl-trust-badge__icon--custom svg {
+    display: block;
+    max-width: 100%;
+    max-height: 100%;
+  }
+
+  .wl-trust-badge__title {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--trust-text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  @media screen and (max-width: 480px) {
+    .wl-trust-row {
+      padding: 9px 12px;
+      gap: 10px;
+    }
+    .wl-trust-badge {
+      gap: 8px;
+    }
+    .wl-trust-badge__icon {
+      width: 28px;
+      height: 28px;
+    }
+    .wl-trust-badge__icon svg {
+      width: 15px;
+      height: 15px;
+    }
+    .wl-trust-badge__title {
+      font-size: 10px;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Trust badges",
+  "tag": null,
+  "settings": [
+    {
+      "type": "header",
+      "content": "Badge 1"
+    },
+    {
+      "type": "select",
+      "id": "badge_1_icon",
+      "label": "Icon",
+      "visible_if": "{{ block.settings.badge_1_svg == blank }}",
+      "options": [
+        { "value": "truck", "label": "Truck" },
+        { "value": "shield", "label": "Shield" },
+        { "value": "location", "label": "Location pin" },
+        { "value": "return", "label": "Return arrow" },
+        { "value": "leaf", "label": "Leaf" },
+        { "value": "gift", "label": "Gift" },
+        { "value": "star", "label": "Star" },
+        { "value": "lock", "label": "Lock" },
+        { "value": "check", "label": "Check circle" }
+      ],
+      "default": "truck"
+    },
+    {
+      "type": "text",
+      "id": "badge_1_text",
+      "label": "Text",
+      "default": "Free Shipping"
+    },
+    {
+      "type": "textarea",
+      "id": "badge_1_svg",
+      "label": "Custom SVG code",
+      "info": "Paste SVG code here to replace the icon above. Leave blank to use the preset icon."
+    },
+    {
+      "type": "header",
+      "content": "Badge 2"
+    },
+    {
+      "type": "select",
+      "id": "badge_2_icon",
+      "label": "Icon",
+      "visible_if": "{{ block.settings.badge_2_svg == blank }}",
+      "options": [
+        { "value": "truck", "label": "Truck" },
+        { "value": "shield", "label": "Shield" },
+        { "value": "location", "label": "Location pin" },
+        { "value": "return", "label": "Return arrow" },
+        { "value": "leaf", "label": "Leaf" },
+        { "value": "gift", "label": "Gift" },
+        { "value": "star", "label": "Star" },
+        { "value": "lock", "label": "Lock" },
+        { "value": "check", "label": "Check circle" }
+      ],
+      "default": "shield"
+    },
+    {
+      "type": "text",
+      "id": "badge_2_text",
+      "label": "Text",
+      "default": "7 Days Replacement"
+    },
+    {
+      "type": "textarea",
+      "id": "badge_2_svg",
+      "label": "Custom SVG code",
+      "info": "Paste SVG code here to replace the icon above. Leave blank to use the preset icon."
+    },
+    {
+      "type": "header",
+      "content": "Badge 3"
+    },
+    {
+      "type": "select",
+      "id": "badge_3_icon",
+      "label": "Icon",
+      "visible_if": "{{ block.settings.badge_3_svg == blank }}",
+      "options": [
+        { "value": "truck", "label": "Truck" },
+        { "value": "shield", "label": "Shield" },
+        { "value": "location", "label": "Location pin" },
+        { "value": "return", "label": "Return arrow" },
+        { "value": "leaf", "label": "Leaf" },
+        { "value": "gift", "label": "Gift" },
+        { "value": "star", "label": "Star" },
+        { "value": "lock", "label": "Lock" },
+        { "value": "check", "label": "Check circle" }
+      ],
+      "default": "location"
+    },
+    {
+      "type": "text",
+      "id": "badge_3_text",
+      "label": "Text",
+      "info": "Leave blank to hide this badge."
+    },
+    {
+      "type": "textarea",
+      "id": "badge_3_svg",
+      "label": "Custom SVG code",
+      "info": "Paste SVG code here to replace the icon above. Leave blank to use the preset icon."
+    },
+    {
+      "type": "header",
+      "content": "t:content.appearance"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background",
+      "default": "#f7f5f0"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text & icon color",
+      "default": "#1a1a1a"
+    },
+    {
+      "type": "header",
+      "content": "t:content.padding"
+    },
+    {
+      "type": "range",
+      "id": "padding-block-start",
+      "label": "t:settings.top",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding-block-end",
+      "label": "t:settings.bottom",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding-inline-start",
+      "label": "t:settings.left",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding-inline-end",
+      "label": "t:settings.right",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 0
+    }
+  ],
+  "presets": [
+    {
+      "name": "Trust badges",
+      "category": "t:categories.product"
+    }
+  ]
+}
+{% endschema %}

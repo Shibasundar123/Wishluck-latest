@@ -1568,6 +1568,214 @@
         "default": "/collections/all"
       },
       {
+        "type": "text",
+        "id": "cart_drawer_promo_text",
+        "label": "Drawer footer promo text",
+        "info": "Short line shown above the checkout button in the cart drawer. Leave empty to hide.",
+        "default": "Extra 5% off on prepaid orders"
+      },
+      {
+        "type": "checkbox",
+        "id": "cart_drawer_payment_icons",
+        "label": "Show UPI app logos on drawer checkout button",
+        "info": "Paytm, PhonePe and Google Pay.",
+        "default": true
+      },
+      {
+        "type": "color",
+        "id": "cart_drawer_footer_background",
+        "label": "Drawer footer background",
+        "default": "#eef3fa"
+      },
+      {
+        "type": "header",
+        "content": "Rewards progress bar",
+        "info": "Shows a milestone progress bar at the top of the cart drawer. Rewards are only visual — set up the actual discounts / free gifts in Shopify Discounts."
+      },
+      {
+        "type": "checkbox",
+        "id": "cart_progress_enabled",
+        "label": "Show rewards progress bar",
+        "default": true
+      },
+      {
+        "type": "select",
+        "id": "cart_progress_type",
+        "label": "Progress based on",
+        "options": [
+          { "value": "item_count", "label": "Number of items" },
+          { "value": "cart_total", "label": "Cart total" }
+        ],
+        "default": "item_count",
+        "info": "For \"Cart total\", enter thresholds in your store currency (e.g. 499).",
+        "visible_if": "{{ settings.cart_progress_enabled == true }}"
+      },
+      {
+        "type": "checkbox",
+        "id": "cart_progress_show_empty",
+        "label": "Also show when cart is empty",
+        "default": false,
+        "visible_if": "{{ settings.cart_progress_enabled == true }}"
+      },
+      {
+        "type": "text",
+        "id": "cart_progress_heading_locked",
+        "label": "Heading (reward pending)",
+        "default": "Add [remaining] more to unlock [reward]",
+        "info": "Use [remaining] and [reward] as placeholders.",
+        "visible_if": "{{ settings.cart_progress_enabled == true }}"
+      },
+      {
+        "type": "text",
+        "id": "cart_progress_heading_unlocked",
+        "label": "Heading (all rewards unlocked)",
+        "default": "Best reward unlocked",
+        "visible_if": "{{ settings.cart_progress_enabled == true }}"
+      },
+      {
+        "type": "text",
+        "id": "cart_progress_tier1_label",
+        "label": "Reward 1 label",
+        "default": "₹50 OFF",
+        "visible_if": "{{ settings.cart_progress_enabled == true }}"
+      },
+      {
+        "type": "number",
+        "id": "cart_progress_tier1_threshold",
+        "label": "Reward 1 threshold",
+        "default": 2,
+        "visible_if": "{{ settings.cart_progress_enabled == true }}"
+      },
+      {
+        "type": "text",
+        "id": "cart_progress_tier2_label",
+        "label": "Reward 2 label",
+        "default": "₹150 OFF",
+        "visible_if": "{{ settings.cart_progress_enabled == true }}"
+      },
+      {
+        "type": "number",
+        "id": "cart_progress_tier2_threshold",
+        "label": "Reward 2 threshold",
+        "default": 3,
+        "visible_if": "{{ settings.cart_progress_enabled == true }}"
+      },
+      {
+        "type": "text",
+        "id": "cart_progress_tier3_label",
+        "label": "Reward 3 label",
+        "default": "FREE TOTE BAG",
+        "visible_if": "{{ settings.cart_progress_enabled == true }}"
+      },
+      {
+        "type": "number",
+        "id": "cart_progress_tier3_threshold",
+        "label": "Reward 3 threshold",
+        "default": 4,
+        "visible_if": "{{ settings.cart_progress_enabled == true }}"
+      },
+      {
+        "type": "color",
+        "id": "cart_progress_banner_bg",
+        "label": "Heading background",
+        "default": "#FBE255",
+        "visible_if": "{{ settings.cart_progress_enabled == true }}"
+      },
+      {
+        "type": "color",
+        "id": "cart_progress_banner_text",
+        "label": "Heading text",
+        "default": "#111111",
+        "visible_if": "{{ settings.cart_progress_enabled == true }}"
+      },
+      {
+        "type": "color",
+        "id": "cart_progress_bar_color",
+        "label": "Progress bar fill",
+        "default": "#FBE255",
+        "visible_if": "{{ settings.cart_progress_enabled == true }}"
+      },
+      {
+        "type": "color",
+        "id": "cart_progress_track_color",
+        "label": "Progress bar track",
+        "default": "#F1F1F1",
+        "visible_if": "{{ settings.cart_progress_enabled == true }}"
+      },
+      {
+        "type": "color",
+        "id": "cart_progress_node_color",
+        "label": "Milestone circle",
+        "default": "#3B7BE8",
+        "visible_if": "{{ settings.cart_progress_enabled == true }}"
+      },
+      {
+        "type": "color",
+        "id": "cart_progress_reward_bg",
+        "label": "Reward pill background",
+        "default": "#3B7BE8",
+        "visible_if": "{{ settings.cart_progress_enabled == true }}"
+      },
+      {
+        "type": "color",
+        "id": "cart_progress_reward_text",
+        "label": "Reward pill text",
+        "default": "#FFFFFF",
+        "visible_if": "{{ settings.cart_progress_enabled == true }}"
+      },
+      {
+        "type": "color",
+        "id": "cart_progress_threshold_bg",
+        "label": "Threshold pill background",
+        "default": "#E85757",
+        "visible_if": "{{ settings.cart_progress_enabled == true }}"
+      },
+      {
+        "type": "color",
+        "id": "cart_progress_threshold_text",
+        "label": "Threshold pill text",
+        "default": "#FFFFFF",
+        "visible_if": "{{ settings.cart_progress_enabled == true }}"
+      },
+      {
+        "type": "header",
+        "content": "Recommended products",
+        "info": "A horizontal row of hand-picked products shown in the cart drawer below the line items."
+      },
+      {
+        "type": "checkbox",
+        "id": "cart_recs_enabled",
+        "label": "Show recommended products",
+        "default": true
+      },
+      {
+        "type": "text",
+        "id": "cart_recs_heading",
+        "label": "Heading",
+        "default": "You may also like",
+        "visible_if": "{{ settings.cart_recs_enabled == true }}"
+      },
+      {
+        "type": "product_list",
+        "id": "cart_recs_products",
+        "label": "Products",
+        "limit": 10
+      },
+      {
+        "type": "checkbox",
+        "id": "cart_recs_hide_in_cart",
+        "label": "Hide products already in the cart",
+        "default": true,
+        "visible_if": "{{ settings.cart_recs_enabled == true }}"
+      },
+      {
+        "type": "checkbox",
+        "id": "cart_recs_show_empty",
+        "label": "Also show when the cart is empty",
+        "default": true,
+        "visible_if": "{{ settings.cart_recs_enabled == true }}"
+      },
+      {
         "type": "header",
         "content": "t:content.product_media"
       },

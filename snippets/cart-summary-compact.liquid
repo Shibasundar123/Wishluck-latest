@@ -1,0 +1,262 @@
+{%- doc -%}
+  Compact cart summary for the cart drawer.
+
+  A promo line on top (gift icon + text from theme settings), then one row:
+  "Est. Total" with the cart total and a struck-through MRP total on the left, and a
+  full-height checkout button (label + UPI app logos + chevron) on the right.
+  The drawer footer behind it gets a soft tinted background (theme setting).
+  No tax note, no totals table — the footer stays as short as possible.
+
+  The cart page keeps using the full `cart-summary` snippet.
+
+  @param {string} [section_id] - Section ID (kept for parity with cart-summary).
+{%- enddoc -%}
+
+{% render 'text-component-shimmer-styles' %}
+{% render 'cart-typography-styles' %}
+
+{%- liquid
+  # Always drop trailing zeros (399, not 399.00); money_with_currency can't do that,
+  # so append the ISO code ourselves when the currency code setting is on.
+  assign total_price = cart.total_price | money_without_trailing_zeros
+  if settings.currency_code_enabled_cart_total
+    assign total_price = total_price | append: ' ' | append: cart.currency.iso_code
+  endif
+
+  # MRP total: compare-at price where the variant has one, else the regular price.
+  # Shown struck-through when it's higher than what the shopper actually pays.
+  assign compare_total = 0
+  for item in cart.items
+    if item.variant.compare_at_price > item.variant.price
+      assign line_compare = item.variant.compare_at_price | times: item.quantity
+    else
+      assign line_compare = item.original_line_price
+    endif
+    assign compare_total = compare_total | plus: line_compare
+  endfor
+
+  assign promo_text = settings.cart_drawer_promo_text
+-%}
+
+<div class="cart-summary-compact">
+  {%- if promo_text != blank -%}
+    <p class="cart-summary-compact__promo">
+      <span class="cart-summary-compact__promo-icon svg-wrapper">
+        {{- 'icon-gift.svg' | inline_asset_content -}}
+      </span>
+      <span>{{ promo_text | escape }}</span>
+    </p>
+  {%- endif -%}
+
+  <div class="cart-summary-compact__bar">
+    <div
+      class="cart-summary-compact__total"
+      role="status"
+    >
+      <span class="cart-summary-compact__total-label cart-primary-typography">
+        {{- 'content.cart_est_total_short' | t -}}
+      </span>
+      <text-component
+        ref="cartTotal"
+        value="{{ total_price | strip_html }}"
+        class="cart-summary-compact__price cart-secondary-typography"
+        {% comment %} Used by payment_terms web component {% endcomment %}
+        data-testid="cart-total-value"
+        data-cart-subtotal
+      >
+        {{- total_price -}}
+      </text-component>
+      {%- if compare_total > cart.total_price -%}
+        <s class="cart-summary-compact__compare cart-secondary-typography">
+          {{- compare_total | money_without_trailing_zeros -}}
+        </s>
+      {%- endif -%}
+    </div>
+
+    <button
+      type="submit"
+      id="checkout"
+      class="cart__checkout-button cart-summary-compact__checkout button"
+      name="checkout"
+      {% if cart == empty %}
+        disabled
+      {% endif %}
+      form="cart-form"
+    >
+      <span class="button-text">
+        {{ 'content.checkout' | t }}
+      </span>
+      {%- if settings.cart_drawer_payment_icons -%}
+        <span
+          class="cart-summary-compact__pay"
+          aria-hidden="true"
+        >
+          {{- 'icon-upi-apps.svg' | inline_asset_content -}}
+        </span>
+      {%- endif -%}
+      <span class="cart-summary-compact__chevron svg-wrapper">
+        {{- 'icon-chevron-right.svg' | inline_asset_content -}}
+      </span>
+    </button>
+  </div>
+
+  {% if additional_checkout_buttons and settings.show_accelerated_checkout_buttons %}
+    <div class="additional-checkout-buttons cart-summary-compact__accelerated">
+      {{ content_for_additional_checkout_buttons }}
+    </div>
+  {% endif %}
+</div>
+
+{% stylesheet %}
+  /* Tinted footer: the sticky drawer summary itself is painted so the tint runs edge to edge.
+     The drawer's top mask fades the first padding-row out, which reads as a soft gradient. */
+  .cart-drawer__summary:has(.cart-summary-compact) {
+    gap: 0;
+    /* Direct padding, not the --cart-drawer-summary-padding var: the drawer also feeds that
+       var into its mask gradient, where a multi-value shorthand would be invalid. */
+    padding: var(--padding-md) var(--padding-lg) var(--padding-lg);
+    background:
+      linear-gradient(
+        to bottom,
+        color-mix(in srgb, var(--cart-drawer-footer-bg) 45%, var(--color-background)),
+        var(--cart-drawer-footer-bg)
+      );
+    border-block-start: 1px solid rgb(var(--color-foreground-rgb) / var(--opacity-10-25));
+
+    @media screen and (min-width: 750px) {
+      padding: var(--padding-lg) var(--padding-2xl) var(--padding-xl);
+    }
+  }
+
+  .cart-summary-compact {
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap-sm);
+    width: 100%;
+  }
+
+  /* Promo line — gift icon + short uppercase text, centered */
+  .cart-summary-compact__promo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--gap-2xs);
+    margin: 0;
+    font-size: var(--font-size--xs);
+    font-weight: var(--font-weight-bold, 700);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--color-foreground);
+  }
+
+  .cart-summary-compact__promo-icon {
+    width: 16px;
+    height: 16px;
+    margin: 0;
+  }
+
+  /* Row: [Est. total block] [checkout button] */
+  .cart-summary-compact__bar {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: center;
+    gap: var(--gap-md);
+  }
+
+  .cart-summary-compact__total {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1px;
+    line-height: 1.15;
+    color: var(--color-foreground);
+  }
+
+  .cart-summary-compact__total-label {
+    font-size: var(--font-size--xs);
+    color: rgb(var(--color-foreground-rgb) / var(--opacity-70));
+  }
+
+  .cart-summary-compact__price {
+    font-size: var(--font-size--xl);
+    font-weight: var(--font-weight-bold, 700);
+    white-space: nowrap;
+  }
+
+  .cart-summary-compact__compare {
+    font-size: var(--font-size--xs);
+    color: rgb(var(--color-foreground-rgb) / var(--opacity-50));
+    white-space: nowrap;
+  }
+
+  /* Checkout button: label | UPI logos | chevron */
+  .cart-summary-compact__checkout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    align-items: center;
+    gap: var(--gap-sm);
+    width: 100%;
+    min-height: 58px;
+    padding-block: var(--padding-sm);
+    padding-inline: var(--padding-lg) var(--padding-md);
+    text-align: start;
+    text-transform: uppercase;
+    box-shadow:
+      inset 0 0 0 var(--button-border-width) var(--button-border-color),
+      0 6px 16px -8px rgb(var(--color-foreground-rgb) / 0.45);
+  }
+
+  .cart-summary-compact__checkout .button-text {
+    font-size: var(--font-size--md);
+    font-weight: var(--font-weight-bold, 700);
+    letter-spacing: 0.04em;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .cart-summary-compact__pay {
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .cart-summary-compact__pay svg {
+    width: auto;
+    height: 26px;
+  }
+
+  .cart-summary-compact__chevron {
+    width: 9px;
+    height: 14px;
+    margin: 0;
+    --icon-stroke-width: 2.25px;
+  }
+
+  .cart-summary-compact__chevron svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  .cart-summary-compact__accelerated {
+    margin-block-start: var(--gap-xs);
+  }
+
+  @media screen and (max-width: 749px) {
+    .cart-summary-compact__price {
+      font-size: var(--font-size--lg);
+    }
+
+    .cart-summary-compact__checkout {
+      min-height: 54px;
+      padding-inline: var(--padding-md) var(--padding-sm);
+    }
+
+    .cart-summary-compact__checkout .button-text {
+      font-size: var(--font-size--sm);
+    }
+
+    .cart-summary-compact__pay svg {
+      height: 24px;
+    }
+  }
+{% endstylesheet %}

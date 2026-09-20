@@ -60,4 +60,26 @@
   .price-item__group {
     display: inline-block;
   }
+
+  .price-item__discount {
+    color: var(--color-success, #006400);
+    background-color: color-mix(in srgb, var(--color-success, #006400) 12%, transparent);
+    font-size: 0.75em;
+    font-weight: 600;
+    margin-inline-start: 0.35em;
+    padding: 0.15em 0.5em;
+    border-radius: 999px;
+  }
+
+  /* PDP price: bold main price, smaller strikethrough compare-at price */
+  .product-information product-price.text-block .price {
+    font-weight: 600;
+  }
+
+  .product-information product-price.text-block .compare-at-price {
+    font-size: 0.7em;
+    font-weight: 400;
+    margin-inline-start: 0.25em;
+    vertical-align: baseline;
+  }
 {% endstylesheet %}

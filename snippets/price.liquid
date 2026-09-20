@@ -60,17 +60,24 @@
     assign use_currency = true
   endif
 
-  # Format all prices
+  # Discount percentage (based on the raw, unformatted prices)
+  assign discount_percent = 0
+  if show_compare_price and compare_at_price > 0
+    assign discount_percent = compare_at_price | minus: price | times: 100 | divided_by: compare_at_price
+  endif
+
+  # Format all prices, without trailing ".00"
   if use_currency
-    assign price = price | money_with_currency
-    assign compare_at_price = compare_at_price | money_with_currency
-    assign price_min = price_min | money_with_currency
-    assign price_max = price_max | money_with_currency
+    assign currency_code = cart.currency.iso_code
+    assign price = price | money_without_trailing_zeros | append: ' ' | append: currency_code
+    assign compare_at_price = compare_at_price | money_without_trailing_zeros | append: ' ' | append: currency_code
+    assign price_min = price_min | money_without_trailing_zeros | append: ' ' | append: currency_code
+    assign price_max = price_max | money_without_trailing_zeros | append: ' ' | append: currency_code
   else
-    assign price = price | money
-    assign compare_at_price = compare_at_price | money
-    assign price_min = price_min | money
-    assign price_max = price_max | money
+    assign price = price | money_without_trailing_zeros
+    assign compare_at_price = compare_at_price | money_without_trailing_zeros
+    assign price_min = price_min | money_without_trailing_zeros
+    assign price_max = price_max | money_without_trailing_zeros
   endif
 -%}
 
@@ -99,6 +106,9 @@
           <span class="visually-hidden">{{ 'content.price_regular' | t }}&nbsp;</span>
           {{- compare_at_price -}}
         </span>
+        {% if discount_percent > 0 %}
+          <span class="price-item__group price-item__discount">{{ discount_percent }}% off</span>
+        {% endif %}
       {% else %}
         <span class="price-item__group price-item--regular compare-at-price">
           <span class="visually-hidden">{{ 'content.price_regular' | t }}&nbsp;</span>
@@ -108,6 +118,9 @@
           <span class="visually-hidden">{{ 'content.price_sale' | t }}&nbsp;</span>
           {{ price | default: '&nbsp;' }}
         </span>
+        {% if discount_percent > 0 %}
+          <span class="price-item__group price-item__discount">{{ discount_percent }}% off</span>
+        {% endif %}
       {% endif %}
     {% else %}
       <span class="price">{{ price | default: '&nbsp;' }}</span>

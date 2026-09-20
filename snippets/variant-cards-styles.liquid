@@ -1,0 +1,336 @@
+{%- doc -%}
+  Styles for the "Image cards" variant picker style (variant image + title + price in a
+  horizontal card carousel). Rendered from variant-main-picker when the block uses
+  variant_style == 'cards'.
+
+  Colors and sizes come from CSS custom properties set on the <variant-picker> element
+  (see variant-main-picker), so each block instance can be styled independently.
+{%- enddoc -%}
+
+{% stylesheet %}
+  .variant-option--cards {
+    --variant-card-radius: 12px;
+    --variant-card-gap: 12px;
+    --variant-card-arrow-size: 32px;
+    /* Each card takes an equal share of the row: (100% - gaps) / cards-per-view */
+    --variant-card-per-view: var(--variant-cards-per-view, 2.7);
+    --variant-card-basis: calc(
+      (100% - (var(--variant-card-per-view) - 1) * var(--variant-card-gap)) / var(--variant-card-per-view)
+    );
+
+    display: block;
+    /* width:0 + min-width:100% zeroes the fieldset's intrinsic (min-content) width, so the
+       scrolling track can never stretch the product-details column — it always fills it instead. */
+    width: 0;
+    min-width: 100%;
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+
+  .variant-option--cards legend {
+    display: block;
+    width: 100%;
+    margin-block-end: var(--margin-xs);
+    padding: 0;
+    font-family: var(--font-heading--family);
+    font-weight: 700;
+    font-size: var(--font-size--md);
+    color: var(--variant-card-legend-color, var(--variant-option-label-color, var(--color-foreground)));
+  }
+
+  .variant-cards {
+    position: relative;
+    display: block;
+  }
+
+  .variant-cards__track {
+    display: flex;
+    gap: var(--variant-card-gap);
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: 4px;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+    /* Room for the badge that overhangs the top edge + the selected ring */
+    padding-block: 14px 4px;
+    padding-inline: 4px;
+  }
+
+  .variant-cards__track::-webkit-scrollbar {
+    display: none;
+  }
+
+  .variant-cards__card {
+    --variant-card-ring: var(--variant-card-border, rgb(180 210 232));
+
+    position: relative;
+    flex: 0 0 var(--variant-card-basis);
+    max-width: 100%;
+    display: flex;
+    flex-direction: column;
+    scroll-snap-align: start;
+    cursor: pointer;
+    background: var(--variant-card-bg, #ffffff);
+    border-radius: var(--variant-card-radius);
+    box-shadow: 0 0 0 1.5px var(--variant-card-ring);
+    color: var(--variant-card-title-color, var(--color-foreground));
+    text-align: center;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .variant-cards__card {
+      transition: box-shadow var(--animation-speed) var(--animation-easing);
+    }
+  }
+
+  .variant-cards__card:hover {
+    --variant-card-ring: color-mix(in srgb, var(--variant-card-selected-border, #000) 55%, var(--variant-card-border, rgb(180 210 232)));
+  }
+
+  .variant-cards__card:has(input:checked) {
+    box-shadow: 0 0 0 3px var(--variant-card-selected-border, #000);
+  }
+
+  .variant-cards__card:has(input:focus-visible) {
+    outline: var(--focus-outline-width) solid currentcolor;
+    outline-offset: 5px;
+  }
+
+  .variant-cards__card > input {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    opacity: 0;
+    cursor: pointer;
+    appearance: none;
+    z-index: 1;
+  }
+
+  /* Faux radio in the top-left corner */
+  .variant-cards__radio {
+    position: absolute;
+    inset-block-start: 10px;
+    inset-inline-start: 10px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 2px solid var(--variant-card-selected-border, #000);
+    background: var(--variant-card-bg, #ffffff);
+    z-index: 2;
+    pointer-events: none;
+  }
+
+  .variant-cards__radio::after {
+    content: '';
+    position: absolute;
+    inset: 4px;
+    border-radius: 50%;
+    background: var(--variant-card-selected-border, #000);
+    transform: scale(0);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .variant-cards__radio::after {
+      transition: transform var(--animation-speed) var(--animation-easing);
+    }
+  }
+
+  .variant-cards__card:has(input:checked) .variant-cards__radio::after {
+    transform: scale(1);
+  }
+
+  /* "Most Popular" pill overhanging the top edge */
+  .variant-cards__badge {
+    position: absolute;
+    inset-block-start: 0;
+    inset-inline-start: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 3;
+    white-space: nowrap;
+    padding: 3px 12px;
+    border-radius: 999px;
+    background: var(--variant-card-badge-bg, #f6e84d);
+    color: var(--variant-card-badge-text, #000);
+    font-family: var(--font-heading--family);
+    font-weight: 700;
+    font-size: var(--font-size--xs);
+    letter-spacing: 0.04em;
+    line-height: 1.4;
+    pointer-events: none;
+  }
+
+  .variant-cards__media {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: var(--variant-card-image-height, 100px);
+    padding: 14px 12px 2px;
+    border-start-start-radius: inherit;
+    border-start-end-radius: inherit;
+    overflow: hidden;
+  }
+
+  .variant-cards__media img,
+  .variant-cards__media svg {
+    display: block;
+    width: auto;
+    max-width: 85%;
+    max-height: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  .variant-cards__info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    padding: 4px 10px 12px;
+  }
+
+  .variant-cards__title {
+    font-family: var(--font-heading--family);
+    font-weight: 700;
+    font-size: var(--font-size--md);
+    line-height: 1.2;
+    color: var(--variant-card-title-color, var(--color-foreground));
+  }
+
+  .variant-cards__price {
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    gap: 6px;
+    flex-wrap: wrap;
+    color: var(--variant-card-price-color, var(--color-foreground));
+  }
+
+  .variant-cards__price-current {
+    font-family: var(--font-heading--family);
+    font-weight: 700;
+    font-size: var(--font-size--sm);
+    line-height: 1.2;
+  }
+
+  .variant-cards__price-compare {
+    font-size: var(--font-size--2xs);
+    font-weight: 700;
+    text-decoration: line-through;
+    opacity: 0.9;
+  }
+
+  .variant-cards__sold-out {
+    font-size: var(--font-size--xs);
+    color: var(--color-foreground-subdued);
+  }
+
+  .variant-cards__card:has([data-option-available='false']) .variant-cards__media,
+  .variant-cards__card:has([data-option-available='false']) .variant-cards__title,
+  .variant-cards__card:has([data-option-available='false']) .variant-cards__price {
+    opacity: 0.45;
+  }
+
+  /* Arrows */
+  .variant-cards__arrow {
+    position: absolute;
+    inset-block-start: 50%;
+    transform: translateY(-50%);
+    z-index: 4;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    width: var(--variant-card-arrow-size);
+    height: var(--variant-card-arrow-size);
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: var(--variant-card-arrow-bg, transparent);
+    color: var(--variant-card-arrow-color, var(--color-foreground));
+    cursor: pointer;
+  }
+
+  .variant-cards__arrow svg {
+    width: 22px;
+    height: 22px;
+  }
+
+  .variant-cards__arrow--prev {
+    inset-inline-start: calc(var(--variant-card-arrow-size) * -1);
+  }
+
+  .variant-cards__arrow--next {
+    inset-inline-end: calc(var(--variant-card-arrow-size) * -1);
+  }
+
+  .variant-cards[data-arrows][data-has-overflow] .variant-cards__arrow {
+    display: flex;
+  }
+
+  .variant-cards__arrow:disabled {
+    opacity: 0.25;
+    cursor: default;
+  }
+
+  /* When the picker sits flush against the page edge there is no room for arrows outside;
+     pull them inside the track and let the card edge peek under them. */
+  @media screen and (max-width: 989px) {
+    .variant-cards__arrow--prev {
+      inset-inline-start: -6px;
+    }
+
+    .variant-cards__arrow--next {
+      inset-inline-end: -6px;
+    }
+
+    .variant-cards__arrow {
+      background: var(--variant-card-arrow-bg, rgb(var(--color-background-rgb) / 0.85));
+    }
+  }
+
+  @media screen and (max-width: 749px) {
+    .variant-option--cards {
+      --variant-card-per-view: var(--variant-cards-per-view-mobile, 2.7);
+      --variant-card-gap: 10px;
+    }
+
+    .variant-cards__media {
+      height: min(var(--variant-card-image-height, 100px), 26vw);
+      padding: 12px 8px 0;
+    }
+
+    .variant-cards__info {
+      padding: 4px 6px 10px;
+    }
+
+    .variant-cards__title {
+      font-size: var(--font-size--sm);
+    }
+
+    .variant-cards__price-current {
+      font-size: var(--font-size--xs);
+    }
+
+    .variant-cards__price-compare {
+      font-size: var(--font-size--3xs);
+    }
+
+    .variant-cards__arrow {
+      display: none !important;
+    }
+  }
+
+  /* Alignment modifiers inherited from the picker */
+  .variant-picker--center .variant-option--cards legend {
+    text-align: center;
+  }
+
+  .variant-picker--right .variant-option--cards legend {
+    text-align: right;
+  }
+{% endstylesheet %}

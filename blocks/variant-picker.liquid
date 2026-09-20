@@ -32,6 +32,10 @@
         {
           "value": "buttons",
           "label": "t:options.buttons"
+        },
+        {
+          "value": "cards",
+          "label": "Image cards"
         }
       ],
       "default": "buttons"
@@ -40,7 +44,143 @@
       "type": "checkbox",
       "id": "show_swatches",
       "label": "t:settings.swatches",
-      "default": true
+      "default": true,
+      "visible_if": "{{ block.settings.variant_style != 'cards' }}"
+    },
+    {
+      "type": "header",
+      "content": "Image cards",
+      "info": "Shows each variant as a card with its image, name and price in a swipeable row. Set a variant image in the product admin to control the picture on each card.",
+      "visible_if": "{{ block.settings.variant_style == 'cards' }}"
+    },
+    {
+      "type": "text",
+      "id": "card_label_prefix",
+      "label": "Heading prefix",
+      "default": "Select your",
+      "info": "Shown before the option name, e.g. \"Select your pack\". Leave empty to show just the option name.",
+      "visible_if": "{{ block.settings.variant_style == 'cards' }}"
+    },
+    {
+      "type": "checkbox",
+      "id": "card_show_compare_price",
+      "label": "Show compare-at price",
+      "default": true,
+      "visible_if": "{{ block.settings.variant_style == 'cards' }}"
+    },
+    {
+      "type": "text",
+      "id": "card_badge_text",
+      "label": "Badge text",
+      "default": "Most Popular",
+      "visible_if": "{{ block.settings.variant_style == 'cards' }}"
+    },
+    {
+      "type": "range",
+      "id": "card_badge_position",
+      "label": "Show badge on card",
+      "min": 0,
+      "max": 10,
+      "step": 1,
+      "default": 2,
+      "info": "0 hides the badge. To set a different badge per variant, add a variant metafield \"custom.variant_badge\" (single line text) — it overrides this setting.",
+      "visible_if": "{{ block.settings.variant_style == 'cards' }}"
+    },
+    {
+      "type": "range",
+      "id": "cards_per_view",
+      "label": "Cards per view",
+      "min": 1.5,
+      "max": 4,
+      "step": 0.1,
+      "default": 2.7,
+      "info": "Cards share the row width equally; the rest scroll horizontally. A fraction (e.g. 2.7) shows a peek of the next card so shoppers know they can swipe.",
+      "visible_if": "{{ block.settings.variant_style == 'cards' }}"
+    },
+    {
+      "type": "range",
+      "id": "cards_per_view_mobile",
+      "label": "Cards per view on mobile",
+      "min": 1,
+      "max": 3,
+      "step": 0.1,
+      "default": 2.7,
+      "visible_if": "{{ block.settings.variant_style == 'cards' }}"
+    },
+    {
+      "type": "checkbox",
+      "id": "card_show_arrows",
+      "label": "Show scroll arrows",
+      "default": false,
+      "info": "Cards always scroll by swipe / trackpad; this adds prev/next buttons on desktop.",
+      "visible_if": "{{ block.settings.variant_style == 'cards' }}"
+    },
+    {
+      "type": "range",
+      "id": "card_image_height",
+      "label": "Image height",
+      "min": 60,
+      "max": 300,
+      "step": 10,
+      "unit": "px",
+      "default": 100,
+      "visible_if": "{{ block.settings.variant_style == 'cards' }}"
+    },
+    {
+      "type": "color",
+      "id": "card_background",
+      "label": "Card background",
+      "default": "#ffffff",
+      "alpha": true,
+      "visible_if": "{{ block.settings.variant_style == 'cards' }}"
+    },
+    {
+      "type": "color",
+      "id": "card_border_color",
+      "label": "Card border",
+      "default": "#b4d2e8",
+      "alpha": true,
+      "visible_if": "{{ block.settings.variant_style == 'cards' }}"
+    },
+    {
+      "type": "color",
+      "id": "card_selected_border_color",
+      "label": "Selected card border",
+      "default": "#000000",
+      "alpha": true,
+      "visible_if": "{{ block.settings.variant_style == 'cards' }}"
+    },
+    {
+      "type": "color",
+      "id": "card_title_color",
+      "label": "Variant name",
+      "default": "#000000",
+      "alpha": true,
+      "visible_if": "{{ block.settings.variant_style == 'cards' }}"
+    },
+    {
+      "type": "color",
+      "id": "card_price_color",
+      "label": "Price",
+      "default": "#e0261c",
+      "alpha": true,
+      "visible_if": "{{ block.settings.variant_style == 'cards' }}"
+    },
+    {
+      "type": "color",
+      "id": "card_badge_background",
+      "label": "Badge background",
+      "default": "#f6e84d",
+      "alpha": true,
+      "visible_if": "{{ block.settings.variant_style == 'cards' }}"
+    },
+    {
+      "type": "color",
+      "id": "card_badge_text_color",
+      "label": "Badge text",
+      "default": "#000000",
+      "alpha": true,
+      "visible_if": "{{ block.settings.variant_style == 'cards' }}"
     },
     {
       "type": "header",

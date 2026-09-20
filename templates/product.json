@@ -6,7 +6,8 @@
  * or related systems. Please exercise caution as any changes
  * made to this file may be overwritten.
  * ------------------------------------------------------------
- */{
+ */
+{
   "sections": {
     "main": {
       "type": "product-information",
@@ -34,14 +35,15 @@
           "type": "_product-media-gallery",
           "static": true,
           "settings": {
-            "media_presentation": "grid",
+            "media_presentation": "carousel",
             "media_columns": "two",
             "image_gap": 4,
             "large_first_image": false,
-            "slideshow_controls_style": "counter",
-            "slideshow_mobile_controls_style": "dots",
-            "thumbnail_position": "right",
-            "thumbnail_width": 44,
+            "icons_style": "arrow",
+            "slideshow_controls_style": "thumbnails",
+            "slideshow_mobile_controls_style": "thumbnails",
+            "thumbnail_position": "left",
+            "thumbnail_width": 72,
             "thumbnail_radius": 0,
             "aspect_ratio": "adapt",
             "constrain_to_viewport": true,
@@ -116,6 +118,7 @@
                 "border_opacity": 100,
                 "border_color": "",
                 "border_radius": 0,
+                "link": "",
                 "open_in_new_tab": false,
                 "placeholder": "",
                 "padding-block-start": 0,
@@ -156,12 +159,12 @@
                     "show_sale_price_first": true,
                     "show_installments": false,
                     "show_tax_info": false,
-                    "type_preset": "paragraph",
+                    "type_preset": "custom",
                     "width": "100%",
                     "alignment": "left",
                     "font": "var(--font-body--family)",
-                    "font_size": "1rem",
-                    "line_height": "normal",
+                    "font_size": "1.5rem",
+                    "line_height": "tight",
                     "letter_spacing": "normal",
                     "case": "none",
                     "text_color": "",
@@ -194,9 +197,24 @@
             "variant_picker_R3rGDr": {
               "type": "variant-picker",
               "settings": {
-                "variant_style": "buttons",
+                "variant_style": "cards",
                 "show_swatches": false,
-                "option_label_text_color": "",
+                "card_label_prefix": "Select your",
+                "card_show_compare_price": true,
+                "card_badge_text": "Most Popular",
+                "card_badge_position": 2,
+                "cards_per_view": 2.7,
+                "cards_per_view_mobile": 2.7,
+                "card_show_arrows": false,
+                "card_image_height": 100,
+                "card_background": "#ffffff",
+                "card_border_color": "#b4d2e8",
+                "card_selected_border_color": "#000000",
+                "card_title_color": "#000000",
+                "card_price_color": "#e0261c",
+                "card_badge_background": "#f6e84d",
+                "card_badge_text_color": "#000000",
+                "option_label_text_color": "#e0261c",
                 "variant_style_class": "default",
                 "custom_variant_background": "{{ settings.color_palette.background }}",
                 "custom_variant_text": "{{ settings.color_palette.foreground }}",
@@ -266,12 +284,43 @@
                 },
                 "accelerated-checkout": {
                   "type": "accelerated-checkout",
+                  "disabled": true,
                   "static": true,
                   "settings": {},
                   "blocks": {}
                 }
               },
               "block_order": []
+            },
+            "trust_card_wl": {
+              "type": "trust-card",
+              "settings": {
+                "item_1_icon": "replace",
+                "item_1_title": "7-day replacement",
+                "item_1_subtitle": "98% resolved in 24h",
+                "item_1_svg": "",
+                "item_2_icon": "users",
+                "item_2_title": "3 Lakh+ parents",
+                "item_2_subtitle": "trust WishLuck",
+                "item_2_svg": "",
+                "item_3_icon": "truck",
+                "item_3_title": "",
+                "item_3_subtitle": "",
+                "item_3_svg": "",
+                "background_color": "#ffffff",
+                "border_color": "#e6e6e6",
+                "divider_color": "#e6e6e6",
+                "icon_color": "#2f5fa8",
+                "title_color": "#111111",
+                "subtitle_color": "#5c5c5c",
+                "border_radius": 16,
+                "show_shadow": true,
+                "padding-block-start": 0,
+                "padding-block-end": 0,
+                "padding-inline-start": 0,
+                "padding-inline-end": 0
+              },
+              "blocks": {}
             },
             "text_aEtTtq": {
               "type": "text",
@@ -298,6 +347,25 @@
                 "padding-inline-end": 0
               },
               "blocks": {}
+            },
+            "about_product_wl": {
+              "type": "about-product",
+              "settings": {
+                "heading": "About this product",
+                "item1_title": "What's in the box",
+                "item1_content": "<p>knknkn noubuobiuobo </p>",
+                "item2_title": "",
+                "item2_content": "",
+                "item3_title": "",
+                "item3_content": "",
+                "item4_title": "",
+                "item4_content": "",
+                "padding-block-start": 0,
+                "padding-block-end": 0,
+                "padding-inline-start": 0,
+                "padding-inline-end": 0
+              },
+              "blocks": {}
             }
           },
           "block_order": [
@@ -305,7 +373,9 @@
             "divider_VJhene",
             "variant_picker_R3rGDr",
             "buy_buttons_eYQEYi",
-            "text_aEtTtq"
+            "trust_card_wl",
+            "text_aEtTtq",
+            "about_product_wl"
           ]
         }
       },
@@ -317,11 +387,29 @@
         "desktop_media_position": "left",
         "equal_columns": false,
         "limit_details_width": false,
+        "media_column_width": 60,
         "gap": 48,
         "enable_sticky_add_to_cart": true,
-        "background_color": "{{ settings.color_palette.background }}",
+        "sticky_button_only": true,
+        "background_color": "#fff6f4",
         "padding-block-start": 0,
         "padding-block-end": 0
+      }
+    },
+    "why_buy_this_hR7GNf": {
+      "type": "why-buy-this",
+      "name": "Why buy this",
+      "settings": {
+        "heading_line_1": "5 Reasons Kids",
+        "heading_line_2": "Love This",
+        "image_position": "left",
+        "background_color": "#1c1c1c",
+        "heading_color": "#ffffff",
+        "highlight_color": "#f6c453",
+        "text_color": "#f2f2f2",
+        "check_color": "#f6c453",
+        "padding_top": 48,
+        "padding_bottom": 48
       }
     },
     "product_recommendations_qggXJq": {
@@ -461,14 +549,23 @@
         "icons_shape": "none",
         "section_width": "page-width",
         "gap": 28,
-        "background_color": "{{ settings.color_palette.background }}",
+        "background_color": "#fff6f4",
         "padding-block-start": 48,
         "padding-block-end": 48
+      }
+    },
+    "wishluck_vs_others_yBBkGH": {
+      "type": "wishluck-vs-others",
+      "name": "Wishluck vs Others",
+      "settings": {
+        "heading": "Wishluck vs Others"
       }
     }
   },
   "order": [
     "main",
+    "why_buy_this_hR7GNf",
+    "wishluck_vs_others_yBBkGH",
     "product_recommendations_qggXJq"
   ]
 }

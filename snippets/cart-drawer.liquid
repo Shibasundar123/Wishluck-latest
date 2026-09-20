@@ -34,14 +34,24 @@
         {{ 'content.your_cart_is_empty' | t }}
       </h2>
 
+      {%- if settings.cart_progress_show_empty -%}
+        {% render 'cart-progress-bar' %}
+      {%- endif -%}
+
       <div class="cart-drawer__items">
         {% render 'cart-products', force_empty: true, context: 'drawer' %}
       </div>
+
+      {%- if settings.cart_recs_show_empty -%}
+        {% render 'cart-recommendations' %}
+      {%- endif -%}
     </div>
   {% endcapture %}
 
   <theme-drawer
     id="cart-drawer"
+    overlay
+    no-persist
     data-skip-node-update
   >
     <dialog
@@ -110,12 +120,16 @@
                 class="cart-drawer__content"
                 aria-label="{{ 'accessibility.cart' | t }}"
               >
+                {% render 'cart-progress-bar' %}
+
                 <scroll-hint class="cart-drawer__items">
                   {% render 'cart-products', context: 'drawer' %}
                 </scroll-hint>
 
+                {% render 'cart-recommendations' %}
+
                 <div class="cart-drawer__summary">
-                  {% render 'cart-summary', section_id: 'cart-drawer-section' %}
+                  {% render 'cart-summary-compact', section_id: 'cart-drawer-section' %}
                 </div>
               </scroll-hint>
             {%- endif -%}
@@ -142,10 +156,15 @@
     display: contents;
   }
 
+  /* Bounded to the dialog both ways (height and flex) so it can never grow past
+     the panel and push the sticky summary out of view */
   .cart-drawer__inner {
     display: flex;
+    flex: 1 1 auto;
     flex-direction: column;
     height: 100%;
+    max-height: 100%;
+    min-height: 0;
     overflow: hidden;
   }
 
@@ -164,27 +183,26 @@
     overflow-y: auto;
   }
 
+  /* Not its own scroll container: the whole .cart-drawer__content scrolls so the
+     progress bar moves with the line items instead of staying pinned at the top */
   .cart-drawer__items {
     display: flex;
     flex-direction: column;
+    flex-shrink: 0;
     padding-inline: var(--cart-drawer-padding);
-    overflow-y: auto;
+    overflow-y: visible;
   }
 
+  /* Line items render as cards (see cart-products); just space them out in the drawer */
   .cart-drawer__items .cart-items__table-row {
-    padding-bottom: var(--gap-xl);
-    border-bottom: var(--style-border-width) solid rgb(var(--color-foreground-rgb) / var(--opacity-10-25));
-    margin-bottom: var(--gap-xl);
+    margin-bottom: var(--gap-md);
   }
 
   .cart-drawer__items .cart-items__table-row:has(+ .cart-items__nested-line) {
-    border-bottom: none;
-    margin-bottom: 0;
+    margin-bottom: var(--gap-xs);
   }
 
   .cart-drawer__items .cart-items__table-row:last-child {
-    border-bottom: none;
-    padding-block-end: 0;
     margin-block-end: 0;
   }
 
@@ -249,6 +267,15 @@
 
   .cart-drawer--empty .cart-drawer__items {
     padding-inline: 0;
+  }
+
+  .cart-drawer--empty .cart-progress {
+    text-align: start;
+    margin-block-end: var(--margin-lg);
+  }
+
+  .cart-drawer--empty .cart-recs {
+    text-align: start;
   }
 
   cart-drawer-component:not(:has(.cart-form)) .cart-drawer__content {
