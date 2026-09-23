@@ -1826,6 +1826,31 @@
         "step": 1,
         "unit": "px",
         "default": 0
+      },
+      {
+        "type": "header",
+        "content": "Free gift at item count",
+        "info": "Automatically adds the chosen product to the cart once the shopper has this many items in it, and removes it again if the cart drops back below that count."
+      },
+      {
+        "type": "checkbox",
+        "id": "cart_gift_threshold_enabled",
+        "label": "Enable free gift at item count",
+        "default": false
+      },
+      {
+        "type": "product",
+        "id": "cart_gift_threshold_product",
+        "label": "Gift product",
+        "info": "The first available variant of this product is added automatically."
+      },
+      {
+        "type": "number",
+        "id": "cart_gift_threshold_quantity",
+        "label": "Minimum items in cart",
+        "default": 4,
+        "info": "Not counting the gift itself. The gift is removed again if the cart drops below this number.",
+        "visible_if": "{{ settings.cart_gift_threshold_enabled == true }}"
       }
     ]
   },

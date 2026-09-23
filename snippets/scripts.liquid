@@ -308,3 +308,24 @@
     },
   };
 </script>
+
+{%- liquid
+  assign cart_gift_variant = blank
+  if settings.cart_gift_threshold_enabled and settings.cart_gift_threshold_product != blank
+    assign cart_gift_variant = settings.cart_gift_threshold_product.selected_or_first_available_variant
+  endif
+-%}
+{% if cart_gift_variant != blank %}
+  <script>
+    window.CartGiftThresholdConfig = {
+      enabled: true,
+      variantId: {{ cart_gift_variant.id | json }},
+      minQuantity: {{ settings.cart_gift_threshold_quantity | default: 1 }}
+    };
+  </script>
+  <script
+    src="{{ 'cart-gift-threshold.js' | asset_url }}"
+    type="module"
+    fetchpriority="low"
+  ></script>
+{% endif %}

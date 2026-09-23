@@ -15,9 +15,9 @@
         "slide_zY7Yjr": {
           "type": "slide",
           "settings": {
-            "image": "shopify://shop_images/banner_2_desktop_3.png",
-            "mobile_image": "shopify://shop_images/banner_2_phone_3.png",
-            "link": "",
+            "image": "shopify://shop_images/banner_1_phone_3.png",
+            "mobile_image": "shopify://shop_images/banner_1_desktop_4.png",
+            "link": "shopify://products/learn-play-interactive-sound-book",
             "new_tab": false,
             "alt": ""
           }
@@ -25,9 +25,9 @@
         "slide_AWDc6P": {
           "type": "slide",
           "settings": {
-            "image": "shopify://shop_images/banner_1_desktop_2.png",
-            "mobile_image": "shopify://shop_images/banner_1_phone.png",
-            "link": "",
+            "image": "shopify://shop_images/banner_2_desktop_4.png",
+            "mobile_image": "shopify://shop_images/banner_2_phone_4.png",
+            "link": "shopify://products/smart-readers™-early-learning-study-ebook",
             "new_tab": false,
             "alt": ""
           }
@@ -35,9 +35,9 @@
         "slide_iyYNUp": {
           "type": "slide",
           "settings": {
-            "image": "shopify://shop_images/banner_3_desktop_3.png",
-            "mobile_image": "shopify://shop_images/banner_3_phone_3.png",
-            "link": "",
+            "image": "shopify://shop_images/banner_3_desktop_4.png",
+            "mobile_image": "shopify://shop_images/banner_3_phone_4.png",
+            "link": "shopify://products/quack-trail-musical-duck-stairway-toy3-pcs-duck",
             "new_tab": false,
             "alt": ""
           }
@@ -142,7 +142,7 @@
             "image": "shopify://shop_images/0-2.png",
             "title": "0–2 Years",
             "description": "Sensory play & first learning",
-            "link": "",
+            "link": "shopify://collections/0-1-years-1",
             "card_color": "#eedbb8",
             "text_color": ""
           }
@@ -213,7 +213,7 @@
             "image": "shopify://shop_images/toys.png",
             "title": "Toys",
             "description": "Wooden, sensory & building toys for hands-on play.",
-            "link": "",
+            "link": "shopify://collections/toy-products",
             "link_label": "Shop Toys",
             "card_color": "#f4e8d4",
             "text_color": ""
@@ -225,7 +225,7 @@
             "image": "shopify://shop_images/books.png",
             "title": "Books",
             "description": "Interactive, pop-up & story books for early readers.",
-            "link": "",
+            "link": "shopify://collections/books",
             "link_label": "Shop Books",
             "card_color": "#e4e1fa",
             "text_color": ""
@@ -460,6 +460,7 @@
           "settings": {
             "icon": "gift",
             "icon_color": "#e0a43c",
+            "custom_icon": "shopify://shop_images/gift.png",
             "title": "Birthday Gifts",
             "text": "Toys kids remember long after the party.",
             "link": ""
@@ -470,6 +471,7 @@
           "settings": {
             "icon": "burst",
             "icon_color": "#8b7be8",
+            "custom_icon": "shopify://shop_images/voucher.png",
             "title": "Festival Specials",
             "text": "Diwali & Rakhi gifting, sorted.",
             "link": ""
@@ -480,6 +482,7 @@
           "settings": {
             "icon": "heart",
             "icon_color": "#d49ac8",
+            "custom_icon": "shopify://shop_images/playtime.png",
             "title": "New Baby",
             "text": "Gentle first toys for newborns.",
             "link": ""
@@ -490,6 +493,7 @@
           "settings": {
             "icon": "medal",
             "icon_color": "#8fbf7a",
+            "custom_icon": "shopify://shop_images/ooooooooooooooooooooooooooooooooooo.png",
             "title": "School Rewards",
             "text": "Celebrate report cards the right way.",
             "link": ""
@@ -584,40 +588,40 @@
         "question_3wn6Te": {
           "type": "question",
           "settings": {
-            "question": "Are WishLuck toys really screen-free?",
-            "answer": "<p>Yes — every WishLuck toy is 100% screen-free. No apps, no screens; just hands-on play that builds focus, motor skills and imagination.</p>",
+            "question": "What is WishLuck?",
+            "answer": "<p>An Indian educational toy brand for kids aged 0–7. We offer 100+ screen-free, research-backed learning toys — sound books, balance bikes, puzzles, musical toys, art kits, and more. Trusted by 3 lakh+ parents with a 4.8/5 rating.</p>",
             "open_by_default": false
           }
         },
         "question_dF437B": {
           "type": "question",
           "settings": {
-            "question": "What age group are these toys suitable for?",
-            "answer": "<p>Our range covers 0–8 years. Every product page shows a recommended age badge, and you can filter any collection by age.</p>",
+            "question": "Are the toys safe for babies and toddlers?",
+            "answer": "<p>Yes. Every toy is made from child-safe, non-toxic, BPA-free materials with no small detachable parts, and is tested for safe edges and finishes.</p>",
             "open_by_default": false
           }
         },
         "question_ThfEF7": {
           "type": "question",
           "settings": {
-            "question": "What materials are used?",
-            "answer": "<p>We use child-safe, non-toxic materials — sustainably sourced wood, food-grade silicone and BPA-free plastics — all tested for small parts and sharp edges.</p>",
+            "question": "Which age group are the toys for?",
+            "answer": "<p>Kids aged 0–7 years — sensory toys (0–1), early learning (1–3), pre-school readiness (3–5), and skill-building games (5–7). Each product page shows the recommended age.</p>",
             "open_by_default": false
           }
         },
         "question_g8KL99": {
           "type": "question",
           "settings": {
-            "question": "Do you offer Cash on Delivery?",
-            "answer": "<p>Yes, Cash on Delivery is available across India. Simply choose COD as your payment method at checkout.</p>",
+            "question": "How do the toys help my child's development?",
+            "answer": "<p>Built on multi-sensory, screen-free learning principles, they develop motor skills, early literacy and numeracy, hand-eye coordination, problem-solving, and creativity — through hands-on play, not screens.</p>",
             "open_by_default": false
           }
         },
         "question_aMKBLz": {
           "type": "question",
           "settings": {
-            "question": "Can I return or exchange a product?",
-            "answer": "<p>Absolutely. Unused products in their original packaging can be returned or exchanged within 7 days of delivery. Message us on WhatsApp and we'll arrange a pickup.</p>",
+            "question": "Why choose WishLuck over other brands?",
+            "answer": "<p>Designed for Indian children — bilingual options, culturally relevant themes, and honest pricing. Backed by 3 lakh+ customers, 93%+ parent satisfaction, and 25,000+ verified reviews at 4.8/5.</p>",
             "open_by_default": false
           }
         }

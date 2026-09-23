@@ -135,7 +135,7 @@
                     "width": "100%",
                     "max_width": "normal",
                     "alignment": "left",
-                    "type_preset": "h3",
+                    "type_preset": "h4",
                     "font": "var(--font-body--family)",
                     "font_size": "1rem",
                     "line_height": "normal",
@@ -352,12 +352,12 @@
               "type": "about-product",
               "settings": {
                 "heading": "About this product",
-                "item1_title": "What's in the box",
-                "item1_content": "<p>knknkn noubuobiuobo </p>",
-                "item2_title": "",
-                "item2_content": "",
-                "item3_title": "",
-                "item3_content": "",
+                "item1_title": "Specifications",
+                "item1_content": "<p> {{ closest.product.metafields.custom.specifications | metafield_tag }}</p>",
+                "item2_title": "What's Included",
+                "item2_content": "<p>{{ closest.product.metafields.custom.what_s_included | metafield_tag }}</p>",
+                "item3_title": "Safety",
+                "item3_content": "<p>{{ closest.product.metafields.custom.safety_points | metafield_tag }}</p>",
                 "item4_title": "",
                 "item4_content": "",
                 "padding-block-start": 0,
@@ -402,14 +402,22 @@
       "settings": {
         "heading_line_1": "5 Reasons Kids",
         "heading_line_2": "Love This",
+        "image": "shopify://shop_images/phone.png",
         "image_position": "left",
-        "background_color": "#1c1c1c",
+        "background_color": "#eb0606",
         "heading_color": "#ffffff",
         "highlight_color": "#f6c453",
         "text_color": "#f2f2f2",
         "check_color": "#f6c453",
-        "padding_top": 48,
-        "padding_bottom": 48
+        "padding_top": 0,
+        "padding_bottom": 12
+      }
+    },
+    "wishluck_vs_others_yBBkGH": {
+      "type": "wishluck-vs-others",
+      "name": "Wishluck vs Others",
+      "settings": {
+        "heading": "Wishluck vs Others"
       }
     },
     "product_recommendations_qggXJq": {
@@ -552,13 +560,6 @@
         "background_color": "#fff6f4",
         "padding-block-start": 48,
         "padding-block-end": 48
-      }
-    },
-    "wishluck_vs_others_yBBkGH": {
-      "type": "wishluck-vs-others",
-      "name": "Wishluck vs Others",
-      "settings": {
-        "heading": "Wishluck vs Others"
       }
     }
   },

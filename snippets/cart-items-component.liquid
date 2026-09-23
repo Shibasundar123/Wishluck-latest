@@ -30,10 +30,51 @@
 
 {% stylesheet %}
   .cart-items-component {
+    position: relative;
     width: 100%;
     height: 100%;
     display: flex;
     flex-direction: column;
+  }
+
+  /* Shown briefly while the free-gift-at-quantity feature adds/removes its line */
+  .cart-items-component.cart-gift-threshold-loading {
+    pointer-events: none;
+  }
+
+  .cart-items-component.cart-gift-threshold-loading::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    background: color-mix(in srgb, var(--color-background, #ffffff) 65%, transparent);
+  }
+
+  .cart-items-component.cart-gift-threshold-loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    z-index: 3;
+    width: 22px;
+    height: 22px;
+    margin: -11px 0 0 -11px;
+    border-radius: 50%;
+    border: 2px solid rgb(var(--color-foreground-rgb) / var(--opacity-25));
+    border-top-color: rgb(var(--color-foreground-rgb) / var(--opacity-subdued-text));
+    animation: cart-gift-threshold-spin 0.7s linear infinite;
+  }
+
+  @keyframes cart-gift-threshold-spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .cart-items-component.cart-gift-threshold-loading::after {
+      animation: none;
+    }
   }
 
   @media screen and (prefers-reduced-motion: no-preference) {

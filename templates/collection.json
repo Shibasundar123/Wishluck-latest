@@ -16,14 +16,14 @@
           "type": "image",
           "name": "t:names.image",
           "settings": {
-            "image": "shopify://shop_images/banner_3_desktop_3.png",
+            "image": "{{ closest.collection.metafields.custom.new_banner_images.value }}",
             "link": "",
             "image_ratio": "adapt",
-            "width": "fill",
+            "width": "custom",
             "custom_width": 100,
-            "width_mobile": "fill",
+            "width_mobile": "custom",
             "custom_width_mobile": 100,
-            "height": "fit",
+            "height": "fill",
             "border": "none",
             "border_width": 1,
             "border_opacity": 100,
@@ -76,7 +76,7 @@
         "align_baseline": false,
         "horizontal_alignment_flex_direction_column": "flex-start",
         "vertical_alignment_flex_direction_column": "center",
-        "gap": 12,
+        "gap": 0,
         "section_width": "page-width",
         "section_height": "",
         "section_height_custom": 50,
@@ -93,8 +93,8 @@
         "border_opacity": 100,
         "border_color": "",
         "border_radius": 0,
-        "padding-block-start": 48,
-        "padding-block-end": 48
+        "padding-block-start": 4,
+        "padding-block-end": 21
       }
     },
     "main": {
